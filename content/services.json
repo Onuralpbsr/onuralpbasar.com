@@ -1,0 +1,23 @@
+[
+  {
+    "id": "1",
+    "title": "Video Prodüksiyon",
+    "description": "Kurumsal tanıtım videoları, ürün tanıtımları ve marka hikayeleri için profesyonel video prodüksiyon hizmetleri."
+  },
+  {
+    "id": "2",
+    "title": "Reklam Videoları",
+    "description": "Sosyal medya platformları için optimize edilmiş, yatay ve dikey formatlarda reklam videoları."
+  },
+  {
+    "id": "3",
+    "title": "Çekim & Montaj",
+    "description": "Profesyonel kamera ekipmanları ile çekim ve son teknoloji yazılımlarla montaj hizmetleri."
+  },
+  {
+    "id": "4",
+    "title": "Sosyal Medya Yönetimi",
+    "description": "Markanızın dijital varlığını güçlendiren içerik üretimi ve sosyal medya yönetimi hizmetleri."
+  }
+]
+

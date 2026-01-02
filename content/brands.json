@@ -1,0 +1,38 @@
+[
+  {
+    "id": "1",
+    "name": "deneme",
+    "logo": "/brands/brand-1.png",
+    "website": "https://example.com"
+  },
+  {
+    "id": "2",
+    "name": "Marka 2",
+    "logo": "/brands/brand-2.png",
+    "website": "https://example.com"
+  },
+  {
+    "id": "3",
+    "name": "Marka 3",
+    "logo": "/brands/brand-3.png",
+    "website": "https://example.com"
+  },
+  {
+    "id": "4",
+    "name": "Marka 4",
+    "logo": "/brands/brand-4.png",
+    "website": "https://example.com"
+  },
+  {
+    "id": "5",
+    "name": "Marka 5",
+    "logo": "/brands/brand-5.png",
+    "website": "https://example.com"
+  },
+  {
+    "id": "6",
+    "name": "Marka 6",
+    "logo": "/brands/brand-6.png",
+    "website": "https://example.com"
+  }
+]

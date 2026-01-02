@@ -1,0 +1,270 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #0a0a0a;
+  --foreground: #fafafa;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html {
+  scroll-behavior: auto;
+}
+
+/* Disable all transitions and animations globally */
+*,
+*::before,
+*::after {
+  transition: none !important;
+  animation: none !important;
+}
+
+/* Re-enable only essential transitions */
+.feature {
+  transition: filter 0.1s ease-out, opacity 0.1s ease-out !important;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body, html {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  color: #fff;
+  background: #232323;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Luxury Mesh Gradient Background */
+body::before {
+  content: '';
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: 
+    radial-gradient(circle at 0% 0%, rgba(184, 134, 11, 0.15) 0%, transparent 25%),
+    radial-gradient(circle at 100% 100%, rgba(139, 69, 19, 0.12) 0%, transparent 25%),
+    radial-gradient(circle at 50% 0%, rgba(255, 215, 0, 0.1) 0%, transparent 30%),
+    radial-gradient(circle at 0% 100%, rgba(120, 119, 198, 0.08) 0%, transparent 30%);
+  animation: meshMove 25s ease-in-out infinite;
+  z-index: -2;
+  pointer-events: none;
+}
+
+@keyframes meshMove {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(5%, -5%) scale(1.1);
+  }
+  50% {
+    transform: translate(-5%, 5%) scale(0.9);
+  }
+  75% {
+    transform: translate(5%, 5%) scale(1.05);
+  }
+}
+
+/* Animated Grid Pattern */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(rgba(255, 215, 0, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 215, 0, 0.03) 1px, transparent 1px);
+  background-size: 100px 100px;
+  animation: gridPulse 8s ease-in-out infinite;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+@keyframes gridPulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.05);
+  }
+}
+
+/* Opaque overlay */
+.opaque {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0;
+  background: #d2d6f1;
+}
+
+.lt-ie9 .opaque {
+  display: none;
+}
+
+/* Feature Background Style */
+.feature {
+  position: fixed;
+  top: 0;
+  z-index: 0;
+  width: 100%;
+  padding-top: 50%;
+  background-position: center center;
+  background-repeat: no-repeat;
+  -webkit-background-size: 250%;
+  -moz-background-size: 250%;
+  -o-background-size: 250%;
+  background-size: 250%;
+  -webkit-box-shadow: 0 -200px 100px -80px #232323 inset;
+  -moz-box-shadow: 0 -200px 100px -80px #232323 inset;
+  box-shadow: 0 -200px 100px -80px #232323 inset;
+  will-change: filter, opacity;
+}
+
+.feature video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+}
+
+/* Content wrapper */
+.content {
+  position: relative;
+  z-index: 1;
+  padding-top: 30%;
+  width: 90%;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media only screen and (min-width: 36.250em) {
+  .content {
+    width: 60%;
+    padding-top: 20%;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .video-masonry {
+    display: grid;
+    grid-auto-rows: 180px;
+    grid-auto-flow: row dense;
+    align-items: start;
+    justify-items: stretch;
+  }
+  
+  @media (min-width: 768px) {
+    .video-masonry {
+      grid-auto-rows: 160px;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .video-masonry {
+      grid-auto-rows: 150px;
+    }
+  }
+  
+  /* Ensure 1 dikey = 2 yatay (üst üste) - Perfect balance */
+  .video-masonry > div[class*="row-span-2"] {
+    min-height: 360px;
+  }
+  
+  .video-masonry > div[class*="row-span-1"] {
+    min-height: 180px;
+  }
+  
+  @media (min-width: 768px) {
+    .video-masonry > div[class*="row-span-2"] {
+      min-height: 340px;
+    }
+    
+    .video-masonry > div[class*="row-span-1"] {
+      min-height: 170px;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .video-masonry > div[class*="row-span-2"] {
+      min-height: 320px;
+    }
+    
+    .video-masonry > div[class*="row-span-1"] {
+      min-height: 160px;
+    }
+  }
+  
+  /* Center horizontal video - Perfect centering with equal spacing */
+  .center-horizontal-video {
+    grid-column: 1 / -1;
+    justify-self: center;
+    max-width: 100%;
+  }
+  
+  @media (min-width: 768px) {
+    /* 3-column grid: center is column 2, perfectly centered */
+    .center-horizontal-video {
+      grid-column: 2 / 3;
+      justify-self: stretch;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    /* 4-column grid: center is columns 2-3, spans 2 columns for prominence */
+    .center-horizontal-video {
+      grid-column: 2 / 4;
+      justify-self: stretch;
+    }
+  }
+  
+  /* Ensure equal spacing around center video */
+  .video-masonry > div:not(.center-horizontal-video) {
+    width: 100%;
+  }
+
+  /* Hide scrollbar for carousel */
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+

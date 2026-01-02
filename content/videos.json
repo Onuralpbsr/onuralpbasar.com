@@ -1,0 +1,82 @@
+[
+  {
+    "id": "1",
+    "title": "Nikopolis Otel Yılbaşı",
+    "thumbnail": "/Nikopolis_Otel_p 2.jpg",
+    "videoUrl": "/Nikopolis Otel.mp4",
+    "orientation": "vertical",
+    "description": "Sosyal Medya Videosu"
+  },
+  {
+    "id": "2",
+    "title": "Tekin Yapı",
+    "thumbnail": "/Tekin_Yapı_p 2.png",
+    "videoUrl": "/Tekin Yapı.mp4",
+    "orientation": "horizontal",
+    "description": "Sosyal Medya Reklam Videosu"
+  },
+  {
+    "id": "3",
+    "title": "Merka Motorlu Araçlar Özel Servisi",
+    "thumbnail": "/Merka_Teaser_p 2.png",
+    "videoUrl": "/Merka Teaser.mp4",
+    "orientation": "vertical",
+    "description": "Tanıtım Filmi"
+  },
+  {
+    "id": "4",
+    "title": "Merka Hareketli Reklam Videosu",
+    "thumbnail": "/Merka_Speedramp_p 2.png",
+    "videoUrl": "/Merka SpeedRamp.mp4",
+    "orientation": "vertical",
+    "description": "Speedramp Reels Videosu"
+  },
+  {
+    "id": "5",
+    "title": "Mercedes GT Black",
+    "thumbnail": "/Mercede_GT_Black_p 2.png",
+    "videoUrl": "/Mercedes GT. Black.mp4",
+    "orientation": "vertical",
+    "description": "Araba Tanıtım Videosu"
+  },
+  {
+    "id": "6",
+    "title": "Merka Mercedes EQB 250+",
+    "thumbnail": "/Mercedes EQB 250+_p 2.png",
+    "videoUrl": "/Mercedes EQB 250+.mp4",
+    "orientation": "vertical",
+    "description": "Araba & Mekan Tanıtım Videosu"
+  },
+  {
+    "id": "7",
+    "title": "Gelin Damat Dış Çekim",
+    "thumbnail": "/Hüseyin & Meryem Şeyma Erdem_p 2.png",
+    "videoUrl": "/Hüseyin & Meryem Şeyma Erdem.mp4",
+    "orientation": "vertical",
+    "description": "Gelin Damat Sinematik Dış Çekimi"
+  },
+  {
+    "id": "8",
+    "title": "Makro Sağlıklı Yaşam Merkezi",
+    "thumbnail": "/Makro_AE_Speadramp_p 2.png",
+    "videoUrl": "/Makro_AE_Speadramp.mp4",
+    "orientation": "vertical",
+    "description": "Speedramp Tanıtım Videosu"
+  },
+  {
+    "id": "9",
+    "title": "Balkoon Kafe",
+    "thumbnail": "/Balkon_p 2.png",
+    "videoUrl": "/Balkon.mp4",
+    "orientation": "vertical",
+    "description": "Kafe Tanıtım Videosu"
+  },
+  {
+    "id": "10",
+    "title": "Makro Sağlıklı Yaşam Merkezi",
+    "thumbnail": "/Makro_Track_Cam-rv2_p 2.png",
+    "videoUrl": "/Makro_Track_Cam-rv2.mp4",
+    "orientation": "vertical",
+    "description": "Ürün Tanıtım Videosu"
+  }
+]

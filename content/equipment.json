@@ -1,0 +1,47 @@
+{
+  "categories": [
+    "Çekim Ekipmanları",
+    "Ses Ekipmanları",
+    "Işıklandırma",
+    "Yazılım"
+  ],
+  "items": [
+    {
+      "id": "1",
+      "name": "Profesyonel Kamera",
+      "category": "Çekim Ekipmanları",
+      "description": "yüksek çözünürlüklü profesyonel video çekimi"
+    },
+    {
+      "id": "2",
+      "name": "Gimbal",
+      "category": "Çekim Ekipmanları",
+      "description": "Smooth ve profesyonel görüntü kalitesi"
+    },
+    {
+      "id": "3",
+      "name": "Profesyonel Ses Kayıt",
+      "category": "Ses Ekipmanları",
+      "description": "Yüksek kaliteli ses kayıt ekipmanları"
+    },
+    {
+      "id": "4",
+      "name": "LED Işık Seti",
+      "category": "Işıklandırma",
+      "description": "Profesyonel stüdyo ışıklandırması"
+    },
+    {
+      "id": "5",
+      "name": "Drone",
+      "category": "Çekim Ekipmanları",
+      "description": "Fpv veya sinematik tercihe göre havadan çekim imkanı"
+    },
+    {
+      "id": "6",
+      "name": "Post Prodüksiyon Programları",
+      "category": "Yazılım",
+      "description": "Adobe Premiere Pro, After Effects"
+    }
+  ]
+}
+
