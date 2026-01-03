@@ -32,9 +32,18 @@ export async function POST(request: Request) {
     const adminUsername = process.env.ADMIN_USERNAME;
     const adminPassword = process.env.ADMIN_PASSWORD;
 
+    // Debug: Production'da hassas bilgileri loglamayın, sadece varlığını kontrol edin
     if (!adminUsername || !adminPassword) {
+      console.error("Admin credentials missing:", {
+        hasUsername: !!adminUsername,
+        hasPassword: !!adminPassword,
+        nodeEnv: process.env.NODE_ENV
+      });
       return NextResponse.json(
-        { error: "Admin credentials not configured" },
+        { 
+          error: "Admin credentials not configured",
+          message: "Lütfen cPanel'de ADMIN_USERNAME ve ADMIN_PASSWORD environment variable'larını ekleyin ve uygulamayı yeniden başlatın."
+        },
         { status: 500 }
       );
     }
