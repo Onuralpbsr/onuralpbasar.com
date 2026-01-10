@@ -28,7 +28,6 @@ export default function AdminLogin() {
 
       if (response.ok) {
         router.push("/adminpanel/dashboard");
-        router.refresh();
       } else {
         setError(data.error || "Giriş başarısız");
       }

@@ -1,32 +1,9 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { checkRateLimit, getClientIdentifier } from "@/lib/rateLimit";
+import { checkRateLimit, checkAndIncrementRateLimit, resetRateLimit, getClientIdentifier } from "@/lib/rateLimit";
 
 export async function POST(request: Request) {
   try {
-    // Rate limiting check
-    const clientId = getClientIdentifier(request);
-    const rateLimit = checkRateLimit(clientId);
-
-    if (!rateLimit.allowed) {
-      const resetTime = new Date(rateLimit.resetTime).toISOString();
-      return NextResponse.json(
-        {
-          error: "Çok fazla giriş denemesi. Lütfen daha sonra tekrar deneyin.",
-          resetTime,
-        },
-        {
-          status: 429,
-          headers: {
-            "Retry-After": Math.ceil((rateLimit.resetTime - Date.now()) / 1000).toString(),
-            "X-RateLimit-Limit": "5",
-            "X-RateLimit-Remaining": "0",
-            "X-RateLimit-Reset": rateLimit.resetTime.toString(),
-          },
-        }
-      );
-    }
-
     const { username, password } = await request.json();
 
     const adminUsername = process.env.ADMIN_USERNAME;
@@ -48,7 +25,35 @@ export async function POST(request: Request) {
       );
     }
 
+    const clientId = getClientIdentifier(request);
+
+    // Check rate limit before processing (without incrementing)
+    const rateLimitCheck = checkRateLimit(clientId);
+
+    if (!rateLimitCheck.allowed) {
+      const resetTime = new Date(rateLimitCheck.resetTime).toISOString();
+      return NextResponse.json(
+        {
+          error: "Çok fazla giriş denemesi. Lütfen daha sonra tekrar deneyin.",
+          resetTime,
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000).toString(),
+            "X-RateLimit-Limit": "5",
+            "X-RateLimit-Remaining": "0",
+            "X-RateLimit-Reset": rateLimitCheck.resetTime.toString(),
+          },
+        }
+      );
+    }
+
+    // Validate credentials
     if (username === adminUsername && password === adminPassword) {
+      // Successful login - reset rate limit
+      resetRateLimit(clientId);
+
       const cookieStore = await cookies();
       const isProduction = process.env.NODE_ENV === "production";
       
@@ -65,11 +70,14 @@ export async function POST(request: Request) {
         {
           headers: {
             "X-RateLimit-Limit": "5",
-            "X-RateLimit-Remaining": rateLimit.remaining.toString(),
+            "X-RateLimit-Remaining": "5",
           },
         }
       );
     } else {
+      // Failed login - increment rate limit
+      const rateLimit = checkAndIncrementRateLimit(clientId);
+
       return NextResponse.json(
         {
           error: "Kullanıcı adı veya şifre hatalı",
@@ -80,11 +88,13 @@ export async function POST(request: Request) {
           headers: {
             "X-RateLimit-Limit": "5",
             "X-RateLimit-Remaining": rateLimit.remaining.toString(),
+            "X-RateLimit-Reset": rateLimit.resetTime.toString(),
           },
         }
       );
     }
   } catch (error) {
+    console.error("Login error:", error);
     return NextResponse.json(
       { error: "Bir hata oluştu" },
       { status: 500 }
