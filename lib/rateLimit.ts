@@ -11,9 +11,13 @@ interface RateLimitEntry {
 const rateLimitStore = new Map<string, RateLimitEntry>();
 
 const RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15 minutes
-const MAX_REQUESTS = 5; // Max 5 login attempts per 15 minutes
+const MAX_REQUESTS = 5; // Max 5 failed login attempts per 15 minutes
 
-export function checkRateLimit(identifier: string): {
+/**
+ * Check and increment rate limit for failed login attempts
+ * Should only be called for failed login attempts
+ */
+export function checkAndIncrementRateLimit(identifier: string): {
   allowed: boolean;
   remaining: number;
   resetTime: number;
@@ -29,7 +33,7 @@ export function checkRateLimit(identifier: string): {
   const currentEntry = rateLimitStore.get(identifier);
 
   if (!currentEntry) {
-    // First request, create new entry
+    // First failed attempt, create new entry
     const resetTime = now + RATE_LIMIT_WINDOW;
     rateLimitStore.set(identifier, {
       count: 1,
@@ -51,7 +55,7 @@ export function checkRateLimit(identifier: string): {
     };
   }
 
-  // Increment count
+  // Increment count for failed attempt
   currentEntry.count++;
 
   return {
@@ -59,6 +63,61 @@ export function checkRateLimit(identifier: string): {
     remaining: MAX_REQUESTS - currentEntry.count,
     resetTime: currentEntry.resetTime,
   };
+}
+
+/**
+ * Check rate limit without incrementing
+ * Used to check if user can attempt login
+ */
+export function checkRateLimit(identifier: string): {
+  allowed: boolean;
+  remaining: number;
+  resetTime: number;
+} {
+  const now = Date.now();
+  const entry = rateLimitStore.get(identifier);
+
+  // Clean up old entries
+  if (entry && entry.resetTime < now) {
+    rateLimitStore.delete(identifier);
+    return {
+      allowed: true,
+      remaining: MAX_REQUESTS,
+      resetTime: now + RATE_LIMIT_WINDOW,
+    };
+  }
+
+  const currentEntry = rateLimitStore.get(identifier);
+
+  if (!currentEntry) {
+    return {
+      allowed: true,
+      remaining: MAX_REQUESTS,
+      resetTime: now + RATE_LIMIT_WINDOW,
+    };
+  }
+
+  if (currentEntry.count >= MAX_REQUESTS) {
+    return {
+      allowed: false,
+      remaining: 0,
+      resetTime: currentEntry.resetTime,
+    };
+  }
+
+  return {
+    allowed: true,
+    remaining: MAX_REQUESTS - currentEntry.count,
+    resetTime: currentEntry.resetTime,
+  };
+}
+
+/**
+ * Reset rate limit for an identifier
+ * Should be called on successful login
+ */
+export function resetRateLimit(identifier: string): void {
+  rateLimitStore.delete(identifier);
 }
 
 /**

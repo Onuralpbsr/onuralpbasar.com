@@ -43,3 +43,8 @@ next-env.d.ts
 *.avi
 *.mkv
 
+# PM2 logs
+/logs
+*.log
+.pm2
+

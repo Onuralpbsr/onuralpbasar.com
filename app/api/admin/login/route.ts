@@ -1,33 +1,30 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { checkRateLimit, getClientIdentifier } from "@/lib/rateLimit";
+import { checkRateLimit, checkAndIncrementRateLimit, resetRateLimit, getClientIdentifier } from "@/lib/rateLimit";
 
 export async function POST(request: Request) {
   try {
-    // Rate limiting check
-    const clientId = getClientIdentifier(request);
-    const rateLimit = checkRateLimit(clientId);
+    let username: string;
+    let password: string;
 
-    if (!rateLimit.allowed) {
-      const resetTime = new Date(rateLimit.resetTime).toISOString();
+    try {
+      const body = await request.json();
+      username = body.username;
+      password = body.password;
+      
+      if (!username || !password) {
+        return NextResponse.json(
+          { error: "Kullanıcı adı ve şifre gereklidir" },
+          { status: 400 }
+        );
+      }
+    } catch (jsonError) {
+      console.error("Failed to parse request body:", jsonError);
       return NextResponse.json(
-        {
-          error: "Çok fazla giriş denemesi. Lütfen daha sonra tekrar deneyin.",
-          resetTime,
-        },
-        {
-          status: 429,
-          headers: {
-            "Retry-After": Math.ceil((rateLimit.resetTime - Date.now()) / 1000).toString(),
-            "X-RateLimit-Limit": "5",
-            "X-RateLimit-Remaining": "0",
-            "X-RateLimit-Reset": rateLimit.resetTime.toString(),
-          },
-        }
+        { error: "Geçersiz istek formatı" },
+        { status: 400 }
       );
     }
-
-    const { username, password } = await request.json();
 
     const adminUsername = process.env.ADMIN_USERNAME;
     const adminPassword = process.env.ADMIN_PASSWORD;
@@ -48,28 +45,86 @@ export async function POST(request: Request) {
       );
     }
 
+    const clientId = getClientIdentifier(request);
+
+    // Check rate limit before processing (without incrementing)
+    const rateLimitCheck = checkRateLimit(clientId);
+
+    if (!rateLimitCheck.allowed) {
+      const resetTime = new Date(rateLimitCheck.resetTime).toISOString();
+      return NextResponse.json(
+        {
+          error: "Çok fazla giriş denemesi. Lütfen daha sonra tekrar deneyin.",
+          resetTime,
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000).toString(),
+            "X-RateLimit-Limit": "5",
+            "X-RateLimit-Remaining": "0",
+            "X-RateLimit-Reset": rateLimitCheck.resetTime.toString(),
+          },
+        }
+      );
+    }
+
+    // Validate credentials
     if (username === adminUsername && password === adminPassword) {
+      // Successful login - reset rate limit
+      resetRateLimit(clientId);
+
       const cookieStore = await cookies();
+      // In development, secure should be false for HTTP
+      // In production, use HTTPS and set secure to true
       const isProduction = process.env.NODE_ENV === "production";
+      const isSecure = isProduction; // Only use secure cookies in production with HTTPS
       
       cookieStore.set("admin_auth", "authenticated", {
         httpOnly: true,
-        secure: isProduction,
+        secure: isSecure,
         sameSite: "lax",
         maxAge: 60 * 60 * 24 * 7, // 7 days
         path: "/",
       });
 
-      return NextResponse.json(
+      // Verify cookie was set
+      const verifyCookie = cookieStore.get("admin_auth");
+      console.log("Login successful, cookie set:", {
+        isProduction,
+        isSecure,
+        nodeEnv: process.env.NODE_ENV,
+        hasCookieStore: !!cookieStore,
+        cookieValue: verifyCookie?.value,
+      });
+
+      // Create response and ensure cookie is in headers
+      const response = NextResponse.json(
         { success: true },
         {
           headers: {
             "X-RateLimit-Limit": "5",
-            "X-RateLimit-Remaining": rateLimit.remaining.toString(),
+            "X-RateLimit-Remaining": "5",
           },
         }
       );
+
+      // Explicitly set cookie in response (Next.js App Router should handle this automatically, but let's be explicit)
+      response.cookies.set("admin_auth", "authenticated", {
+        httpOnly: true,
+        secure: isSecure,
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 7,
+        path: "/",
+      });
+
+      console.log("Response cookie headers:", response.headers.get("set-cookie"));
+
+      return response;
     } else {
+      // Failed login - increment rate limit
+      const rateLimit = checkAndIncrementRateLimit(clientId);
+
       return NextResponse.json(
         {
           error: "Kullanıcı adı veya şifre hatalı",
@@ -80,11 +135,13 @@ export async function POST(request: Request) {
           headers: {
             "X-RateLimit-Limit": "5",
             "X-RateLimit-Remaining": rateLimit.remaining.toString(),
+            "X-RateLimit-Reset": rateLimit.resetTime.toString(),
           },
         }
       );
     }
   } catch (error) {
+    console.error("Login error:", error);
     return NextResponse.json(
       { error: "Bir hata oluştu" },
       { status: 500 }

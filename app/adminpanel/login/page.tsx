@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function AdminLogin() {
@@ -10,10 +10,36 @@ export default function AdminLogin() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: FormEvent) => {
+  // Filter out browser extension errors from console
+  useEffect(() => {
+    const originalError = console.error;
+    console.error = (...args: any[]) => {
+      const message = args[0]?.toString() || "";
+      // Ignore browser extension errors
+      if (
+        message.includes("runtime.lastError") ||
+        message.includes("message port closed") ||
+        message.includes("Receiving end does not exist") ||
+        message.includes("Could not establish connection")
+      ) {
+        return; // Silently ignore extension errors
+      }
+      originalError.apply(console, args);
+    };
+
+    return () => {
+      console.error = originalError;
+    };
+  }, []);
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    e.stopPropagation();
+    
     setError("");
     setLoading(true);
+
+    console.log("Form submit started", { username, password: "***" });
 
     try {
       const response = await fetch("/api/admin/login", {
@@ -22,19 +48,50 @@ export default function AdminLogin() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ username, password }),
+        credentials: "include", // Ensure cookies are sent and received
       });
 
-      const data = await response.json();
+      console.log("Response received:", {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
+        headers: Object.fromEntries(response.headers.entries()),
+      });
 
-      if (response.ok) {
-        router.push("/adminpanel/dashboard");
-        router.refresh();
-      } else {
-        setError(data.error || "Giriş başarısız");
+      // Parse JSON first (response can only be read once)
+      let data;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        console.error("Failed to parse JSON:", jsonError);
+        setError("Sunucudan geçersiz yanıt alındı. Lütfen tekrar deneyin.");
+        setLoading(false);
+        return;
       }
+
+      // Check if response is OK after parsing
+      if (!response.ok) {
+        const errorMessage = data.error || data.message || response.statusText || "Giriş başarısız";
+        console.error("Login failed:", errorMessage, data);
+        setError(errorMessage);
+        setLoading(false);
+        return;
+      }
+
+      console.log("Login successful, data:", data);
+      
+      // Check if Set-Cookie header is present
+      const setCookieHeader = response.headers.get("set-cookie");
+      console.log("Login successful, cookie header:", setCookieHeader);
+      console.log("Document cookies:", document.cookie);
+      
+      // Redirect immediately with full page reload to ensure cookie is sent
+      window.location.href = "/adminpanel/dashboard";
+      
     } catch (err) {
-      setError("Bir hata oluştu. Lütfen tekrar deneyin.");
-    } finally {
+      console.error("Login error:", err);
+      const errorMessage = err instanceof Error ? err.message : "Bir hata oluştu. Lütfen tekrar deneyin.";
+      setError(errorMessage);
       setLoading(false);
     }
   };
