@@ -75,10 +75,16 @@ export async function POST(request: Request) {
       resetRateLimit(clientId);
 
       const cookieStore = await cookies();
-      // In development, secure should be false for HTTP
-      // In production, use HTTPS and set secure to true
+      // Secure cookie detection: Check if request is HTTPS or has X-Forwarded-Proto header
+      // This handles both direct HTTPS and proxy scenarios (like Cloudflare)
+      const protocol = request.headers.get("x-forwarded-proto") || 
+                      (request.url.startsWith("https://") ? "https" : "http");
+      const isHttps = protocol === "https";
       const isProduction = process.env.NODE_ENV === "production";
-      const isSecure = isProduction; // Only use secure cookies in production with HTTPS
+      
+      // Only set secure flag if actually using HTTPS (not just production mode)
+      // SSL kurulmadan önce secure: false kullan (güvenlik için SSL kurulduktan sonra true yapın)
+      const isSecure = isHttps && isProduction;
       
       cookieStore.set("admin_auth", "authenticated", {
         httpOnly: true,
