@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function AdminLogin() {
@@ -9,6 +9,28 @@ export default function AdminLogin() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Filter out browser extension errors from console
+  useEffect(() => {
+    const originalError = console.error;
+    console.error = (...args: any[]) => {
+      const message = args[0]?.toString() || "";
+      // Ignore browser extension errors
+      if (
+        message.includes("runtime.lastError") ||
+        message.includes("message port closed") ||
+        message.includes("Receiving end does not exist") ||
+        message.includes("Could not establish connection")
+      ) {
+        return; // Silently ignore extension errors
+      }
+      originalError.apply(console, args);
+    };
+
+    return () => {
+      console.error = originalError;
+    };
+  }, []);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
