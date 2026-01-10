@@ -34,22 +34,59 @@ export async function POST(request: Request) {
     const body = await request.text();
     const signature = request.headers.get("x-hub-signature-256");
 
+    // GitHub signature header zorunlu kontrolü - güvenlik için her zaman zorunlu
+    if (!signature) {
+      console.error("Missing x-hub-signature-256 header - rejecting unauthenticated request");
+      return NextResponse.json(
+        { error: "Missing signature header - authentication required" },
+        { status: 401 }
+      );
+    }
+
     // GitHub signature doğrulama
-    if (signature) {
-      const hmac = crypto.createHmac("sha256", webhookSecret);
-      const digest = "sha256=" + hmac.update(body).digest("hex");
-      
-      if (signature !== digest) {
-        console.error("Invalid webhook signature");
+    const hmac = crypto.createHmac("sha256", webhookSecret);
+    const digest = "sha256=" + hmac.update(body).digest("hex");
+    
+    // Timing-safe comparison kullanarak signature'ı karşılaştır
+    // Buffer.from() hata fırlatabilir, bu yüzden try-catch içinde yapalım
+    try {
+      if (signature.length !== digest.length) {
+        console.error("Invalid webhook signature: length mismatch");
         return NextResponse.json(
           { error: "Invalid signature" },
           { status: 401 }
         );
       }
+      
+      const signatureBuffer = Buffer.from(signature);
+      const digestBuffer = Buffer.from(digest);
+      
+      if (!crypto.timingSafeEqual(signatureBuffer, digestBuffer)) {
+        console.error("Invalid webhook signature: signature mismatch");
+        return NextResponse.json(
+          { error: "Invalid signature" },
+          { status: 401 }
+        );
+      }
+    } catch (bufferError) {
+      console.error("Error during signature verification:", bufferError);
+      return NextResponse.json(
+        { error: "Invalid signature format" },
+        { status: 401 }
+      );
     }
 
     // JSON parse et
-    const payload = JSON.parse(body);
+    let payload;
+    try {
+      payload = JSON.parse(body);
+    } catch (parseError) {
+      console.error("Failed to parse webhook payload:", parseError);
+      return NextResponse.json(
+        { error: "Invalid JSON payload" },
+        { status: 400 }
+      );
+    }
 
     // Sadece push event'lerini işle
     if (payload.ref !== "refs/heads/main" && payload.ref !== "refs/heads/master") {
@@ -81,7 +118,7 @@ export async function POST(request: Request) {
           success: true,
           message: "Deploy completed successfully",
           commit: payload.head_commit?.id,
-          message: payload.head_commit?.message,
+          commitMessage: payload.head_commit?.message,
           output: stdout,
         },
         { status: 200 }
