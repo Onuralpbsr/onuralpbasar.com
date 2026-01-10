@@ -55,17 +55,31 @@ export async function POST(request: Request) {
       resetRateLimit(clientId);
 
       const cookieStore = await cookies();
+      // In development, secure should be false for HTTP
+      // In production, use HTTPS and set secure to true
       const isProduction = process.env.NODE_ENV === "production";
+      const isSecure = isProduction; // Only use secure cookies in production with HTTPS
       
       cookieStore.set("admin_auth", "authenticated", {
         httpOnly: true,
-        secure: isProduction,
+        secure: isSecure,
         sameSite: "lax",
         maxAge: 60 * 60 * 24 * 7, // 7 days
         path: "/",
       });
 
-      return NextResponse.json(
+      // Verify cookie was set
+      const verifyCookie = cookieStore.get("admin_auth");
+      console.log("Login successful, cookie set:", {
+        isProduction,
+        isSecure,
+        nodeEnv: process.env.NODE_ENV,
+        hasCookieStore: !!cookieStore,
+        cookieValue: verifyCookie?.value,
+      });
+
+      // Create response and ensure cookie is in headers
+      const response = NextResponse.json(
         { success: true },
         {
           headers: {
@@ -74,6 +88,19 @@ export async function POST(request: Request) {
           },
         }
       );
+
+      // Explicitly set cookie in response (Next.js App Router should handle this automatically, but let's be explicit)
+      response.cookies.set("admin_auth", "authenticated", {
+        httpOnly: true,
+        secure: isSecure,
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 7,
+        path: "/",
+      });
+
+      console.log("Response cookie headers:", response.headers.get("set-cookie"));
+
+      return response;
     } else {
       // Failed login - increment rate limit
       const rateLimit = checkAndIncrementRateLimit(clientId);

@@ -22,18 +22,34 @@ export default function AdminLogin() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ username, password }),
+        credentials: "include", // Ensure cookies are sent and received
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        router.push("/adminpanel/dashboard");
+        // Check if Set-Cookie header is present
+        const setCookieHeader = response.headers.get("set-cookie");
+        console.log("Login successful, cookie header:", setCookieHeader);
+        console.log("Response status:", response.status);
+        console.log("Response headers:", Object.fromEntries(response.headers.entries()));
+        
+        // Check if cookie was set in document.cookie (may not work with httpOnly)
+        console.log("Document cookies:", document.cookie);
+        
+        // Wait a moment for cookie to be processed, then redirect with full page reload
+        // This ensures the cookie is sent with the next request
+        setTimeout(() => {
+          window.location.href = "/adminpanel/dashboard";
+        }, 200);
       } else {
+        console.error("Login failed:", data);
         setError(data.error || "Giriş başarısız");
+        setLoading(false);
       }
     } catch (err) {
+      console.error("Login error:", err);
       setError("Bir hata oluştu. Lütfen tekrar deneyin.");
-    } finally {
       setLoading(false);
     }
   };
