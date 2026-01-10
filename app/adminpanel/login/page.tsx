@@ -10,10 +10,14 @@ export default function AdminLogin() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    e.stopPropagation();
+    
     setError("");
     setLoading(true);
+
+    console.log("Form submit started", { username, password: "***" });
 
     try {
       const response = await fetch("/api/admin/login", {
@@ -25,31 +29,47 @@ export default function AdminLogin() {
         credentials: "include", // Ensure cookies are sent and received
       });
 
-      const data = await response.json();
+      console.log("Response received:", {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
+        headers: Object.fromEntries(response.headers.entries()),
+      });
 
-      if (response.ok) {
-        // Check if Set-Cookie header is present
-        const setCookieHeader = response.headers.get("set-cookie");
-        console.log("Login successful, cookie header:", setCookieHeader);
-        console.log("Response status:", response.status);
-        console.log("Response headers:", Object.fromEntries(response.headers.entries()));
-        
-        // Check if cookie was set in document.cookie (may not work with httpOnly)
-        console.log("Document cookies:", document.cookie);
-        
-        // Wait a moment for cookie to be processed, then redirect with full page reload
-        // This ensures the cookie is sent with the next request
-        setTimeout(() => {
-          window.location.href = "/adminpanel/dashboard";
-        }, 200);
-      } else {
-        console.error("Login failed:", data);
-        setError(data.error || "Giriş başarısız");
+      // Parse JSON first (response can only be read once)
+      let data;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        console.error("Failed to parse JSON:", jsonError);
+        setError("Sunucudan geçersiz yanıt alındı. Lütfen tekrar deneyin.");
         setLoading(false);
+        return;
       }
+
+      // Check if response is OK after parsing
+      if (!response.ok) {
+        const errorMessage = data.error || data.message || response.statusText || "Giriş başarısız";
+        console.error("Login failed:", errorMessage, data);
+        setError(errorMessage);
+        setLoading(false);
+        return;
+      }
+
+      console.log("Login successful, data:", data);
+      
+      // Check if Set-Cookie header is present
+      const setCookieHeader = response.headers.get("set-cookie");
+      console.log("Login successful, cookie header:", setCookieHeader);
+      console.log("Document cookies:", document.cookie);
+      
+      // Redirect immediately with full page reload to ensure cookie is sent
+      window.location.href = "/adminpanel/dashboard";
+      
     } catch (err) {
       console.error("Login error:", err);
-      setError("Bir hata oluştu. Lütfen tekrar deneyin.");
+      const errorMessage = err instanceof Error ? err.message : "Bir hata oluştu. Lütfen tekrar deneyin.";
+      setError(errorMessage);
       setLoading(false);
     }
   };

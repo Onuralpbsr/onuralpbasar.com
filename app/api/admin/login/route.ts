@@ -4,7 +4,27 @@ import { checkRateLimit, checkAndIncrementRateLimit, resetRateLimit, getClientId
 
 export async function POST(request: Request) {
   try {
-    const { username, password } = await request.json();
+    let username: string;
+    let password: string;
+
+    try {
+      const body = await request.json();
+      username = body.username;
+      password = body.password;
+      
+      if (!username || !password) {
+        return NextResponse.json(
+          { error: "Kullanıcı adı ve şifre gereklidir" },
+          { status: 400 }
+        );
+      }
+    } catch (jsonError) {
+      console.error("Failed to parse request body:", jsonError);
+      return NextResponse.json(
+        { error: "Geçersiz istek formatı" },
+        { status: 400 }
+      );
+    }
 
     const adminUsername = process.env.ADMIN_USERNAME;
     const adminPassword = process.env.ADMIN_PASSWORD;
