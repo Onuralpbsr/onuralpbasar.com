@@ -6,9 +6,6 @@ import { requireAdminAuth } from "@/lib/auth";
 
 const publicDir = join(process.cwd(), "public");
 
-// Maximum file size: 100MB
-const MAX_FILE_SIZE = 100 * 1024 * 1024;
-
 export async function POST(request: Request) {
   // Check authentication
   const authError = await requireAdminAuth();
@@ -23,14 +20,6 @@ export async function POST(request: Request) {
     if (!file) {
       return NextResponse.json(
         { error: "Dosya bulunamadı" },
-        { status: 400 }
-      );
-    }
-
-    // Dosya boyutu kontrolü
-    if (file.size > MAX_FILE_SIZE) {
-      return NextResponse.json(
-        { error: `Dosya boyutu çok büyük. Maksimum boyut: ${MAX_FILE_SIZE / (1024 * 1024)}MB` },
         { status: 400 }
       );
     }

@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "export": "next build",
+    "pull": "git pull origin main",
     "deploy": "bash scripts/deploy.sh",
     "pm2:start": "pm2 start ecosystem.config.js",
     "pm2:restart": "pm2 restart portfolio",
