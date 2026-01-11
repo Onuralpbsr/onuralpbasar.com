@@ -31,8 +31,9 @@ module.exports = {
       merge_logs: true,
       // Restart ayarları
       min_uptime: "10s",
-      max_restarts: 10,
+      max_restarts: 15, // Restart sayısını biraz artırdık
       restart_delay: 4000,
+      exp_backoff_restart_delay: 100, // Exponential backoff başlangıç
       // Graceful shutdown
       kill_timeout: 5000,
       wait_ready: true,

@@ -56,6 +56,12 @@ else
     exit 1
 fi
 
+# Önceki build ve cache'leri temizle (Server Action hatası için önemli)
+log "Eski build ve cache temizleniyor..."
+rm -rf .next 2>/dev/null || true
+rm -rf node_modules/.cache 2>/dev/null || true
+log "Temizlik tamamlandı"
+
 # Build işlemi
 log "Next.js build yapılıyor..."
 npm run build
@@ -67,24 +73,39 @@ if command -v pm2 &> /dev/null; then
     # PM2 process name (ecosystem.config.js'den alınabilir)
     PM2_APP_NAME=${PM2_APP_NAME:-"portfolio"}
     
-    # Eğer process çalışıyorsa restart, yoksa start
+    # Eğer process çalışıyorsa restart (Server Action cache sorunları için restart gerekli)
     if pm2 list | grep -q "$PM2_APP_NAME"; then
-        pm2 restart "$PM2_APP_NAME"
+        # Server Action hatalarını önlemek için restart kullan
+        # Bu cache uyumsuzluklarını çözer
+        log "PM2 process yeniden başlatılıyor (cache temizleme için)..."
+        pm2 restart "$PM2_APP_NAME" --update-env
     else
         warning "PM2 process bulunamadı, başlatılıyor..."
         pm2 start ecosystem.config.js || pm2 start npm --name "$PM2_APP_NAME" -- start
     fi
     
+    # Kısa bir bekleme (uygulamanın başlaması için)
+    sleep 2
+    
     log "PM2 durumu:"
     pm2 list
+    
+    # PM2 health check
+    PM2_STATUS=$(pm2 jlist | grep -o '"status":"[^"]*"' | head -1 | cut -d'"' -f4)
+    if [ "$PM2_STATUS" != "online" ]; then
+        error "PM2 uygulaması online değil! Durum: $PM2_STATUS"
+        log "Son hatalar için: pm2 logs $PM2_APP_NAME --err --lines 20"
+        exit 1
+    fi
 else
     warning "PM2 bulunamadı, manuel restart gerekebilir"
     log "Manuel restart için: pm2 restart portfolio veya systemctl restart portfolio"
 fi
 
-# Cache temizleme (opsiyonel)
-log "Next.js cache temizleniyor..."
+# Runtime cache temizleme (Server Action cache'leri için)
+log "Next.js runtime cache temizleniyor..."
 rm -rf .next/cache 2>/dev/null || true
+log "Cache temizleme tamamlandı"
 
 log "Deploy tamamlandı! ✅"
 log "Commit: $COMMIT_HASH"
