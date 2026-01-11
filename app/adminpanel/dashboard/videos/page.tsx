@@ -310,19 +310,24 @@ export default function VideosManager() {
                         rows={3}
                       />
                     </div>
-                    <div className="flex gap-4">
-                      <button
-                        onClick={handleUpdate}
-                        className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg"
-                      >
-                        Güncelle
-                      </button>
-                      <button
-                        onClick={handleCancel}
-                        className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg"
-                      >
-                        İptal
-                      </button>
+                    <div className="space-y-2">
+                      <div className="bg-blue-500/20 border border-blue-500/50 rounded-lg p-3 text-sm text-blue-300">
+                        💡 <strong>Önemli:</strong> Dosya yükledikten sonra "Güncelle" butonuna basın, ardından sayfanın üstündeki "Kaydet" butonuna basarak değişiklikleri kaydedin.
+                      </div>
+                      <div className="flex gap-4">
+                        <button
+                          onClick={handleUpdate}
+                          className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg"
+                        >
+                          Güncelle
+                        </button>
+                        <button
+                          onClick={handleCancel}
+                          className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg"
+                        >
+                          İptal
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ) : (
