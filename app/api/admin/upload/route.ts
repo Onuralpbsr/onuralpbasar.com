@@ -75,10 +75,19 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error("Upload error:", error);
+    const errorMessage = error instanceof Error ? error.message : "Dosya yüklenirken bir hata oluştu";
     return NextResponse.json(
-      { error: "Dosya yüklenirken bir hata oluştu" },
+      { 
+        success: false,
+        error: errorMessage,
+        details: process.env.NODE_ENV === "development" ? String(error) : undefined
+      },
       { status: 500 }
     );
   }
 }
+
+// Next.js App Router'da body size limiti için config
+export const runtime = "nodejs";
+export const maxDuration = 300; // 5 dakika timeout
 

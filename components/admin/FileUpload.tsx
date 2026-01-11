@@ -110,11 +110,15 @@ export default function FileUpload({
           });
 
           xhr.addEventListener("error", () => {
-            reject(new Error("Yükleme hatası"));
+            reject(new Error("Ağ hatası oluştu"));
           });
 
           xhr.addEventListener("abort", () => {
             reject(new Error("Yükleme iptal edildi"));
+          });
+
+          xhr.addEventListener("timeout", () => {
+            reject(new Error("Yükleme zaman aşımına uğradı"));
           });
 
           xhr.open("POST", "/api/admin/upload");
@@ -130,7 +134,8 @@ export default function FileUpload({
       }
     } catch (error) {
       console.error("Upload error:", error);
-      setError("Dosya yüklenirken bir hata oluştu");
+      const errorMessage = error instanceof Error ? error.message : "Dosya yüklenirken bir hata oluştu";
+      setError(errorMessage);
     } finally {
       setIsUploading(false);
       setTimeout(() => {
