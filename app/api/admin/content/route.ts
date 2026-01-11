@@ -13,11 +13,9 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const type = searchParams.get("type");
 
+    // If no type is provided, just return success for auth checking
     if (!type) {
-      return NextResponse.json(
-        { error: "Content type is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ authenticated: true });
     }
 
     const filePath = join(contentDir, `${type}.json`);
