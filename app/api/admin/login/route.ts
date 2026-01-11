@@ -80,11 +80,12 @@ export async function POST(request: Request) {
       const protocol = request.headers.get("x-forwarded-proto") || 
                       (request.url.startsWith("https://") ? "https" : "http");
       const isHttps = protocol === "https";
-      const isProduction = process.env.NODE_ENV === "production";
+      // Cloudflare kullanıldığında CF-Connecting-IP header'ı vardır
+      const isCloudflare = !!request.headers.get("cf-connecting-ip");
       
-      // Only set secure flag if actually using HTTPS (not just production mode)
-      // SSL kurulmadan önce secure: false kullan (güvenlik için SSL kurulduktan sonra true yapın)
-      const isSecure = isHttps && isProduction;
+      // Secure flag: HTTPS kullanıldığında veya Cloudflare proxy üzerinden geliyorsa true
+      // Cloudflare HTTPS ile çalışıyorsa X-Forwarded-Proto: https olacaktır
+      const isSecure = isHttps || isCloudflare;
       
       cookieStore.set("admin_auth", "authenticated", {
         httpOnly: true,
@@ -97,7 +98,9 @@ export async function POST(request: Request) {
       // Verify cookie was set
       const verifyCookie = cookieStore.get("admin_auth");
       console.log("Login successful, cookie set:", {
-        isProduction,
+        protocol,
+        isHttps,
+        isCloudflare,
         isSecure,
         nodeEnv: process.env.NODE_ENV,
         hasCookieStore: !!cookieStore,
