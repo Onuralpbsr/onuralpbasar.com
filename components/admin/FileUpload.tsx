@@ -100,17 +100,30 @@ export default function FileUpload({
                 reject(new Error("Geçersiz yanıt"));
               }
             } else {
+              // HTTP status koduna göre özel hata mesajları
+              let errorMessage = "Yükleme başarısız";
+              
+              if (xhr.status === 413) {
+                errorMessage = "Dosya çok büyük. Lütfen daha küçük bir dosya seçin veya sunucu limitlerini kontrol edin.";
+              } else if (xhr.status === 400) {
+                errorMessage = "Geçersiz dosya formatı veya eksik parametreler.";
+              } else if (xhr.status === 401 || xhr.status === 403) {
+                errorMessage = "Yetkilendirme hatası. Lütfen yeniden giriş yapın.";
+              } else if (xhr.status === 500) {
+                errorMessage = "Sunucu hatası. Lütfen daha sonra tekrar deneyin.";
+              }
+              
               try {
                 const data = JSON.parse(xhr.responseText);
-                resolve({ success: false, error: data.error || "Yükleme başarısız" });
+                resolve({ success: false, error: data.error || errorMessage });
               } catch {
-                resolve({ success: false, error: "Yükleme başarısız" });
+                resolve({ success: false, error: errorMessage });
               }
             }
           });
 
           xhr.addEventListener("error", () => {
-            reject(new Error("Ağ hatası oluştu"));
+            reject(new Error("Ağ hatası oluştu. İnternet bağlantınızı kontrol edin."));
           });
 
           xhr.addEventListener("abort", () => {
@@ -118,9 +131,12 @@ export default function FileUpload({
           });
 
           xhr.addEventListener("timeout", () => {
-            reject(new Error("Yükleme zaman aşımına uğradı"));
+            reject(new Error("Yükleme zaman aşımına uğradı. Dosya çok büyük olabilir, lütfen daha küçük bir dosya deneyin."));
           });
 
+          // Büyük dosyalar için timeout ayarla (5 dakika)
+          xhr.timeout = 300000; // 5 dakika = 300000ms
+          
           xhr.open("POST", "/api/admin/upload");
           xhr.send(formData);
         }

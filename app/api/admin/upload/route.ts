@@ -75,14 +75,34 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error("Upload error:", error);
-    const errorMessage = error instanceof Error ? error.message : "Dosya yüklenirken bir hata oluştu";
+    
+    // Daha detaylı hata bilgisi
+    let errorMessage = "Dosya yüklenirken bir hata oluştu";
+    let statusCode = 500;
+    
+    if (error instanceof Error) {
+      errorMessage = error.message;
+      
+      // Dosya sistemi hatalarını kontrol et
+      if (errorMessage.includes("ENOSPC") || errorMessage.includes("disk")) {
+        errorMessage = "Disk alanı yetersiz. Lütfen sunucu disk alanını kontrol edin.";
+        statusCode = 507; // Insufficient Storage
+      } else if (errorMessage.includes("EACCES") || errorMessage.includes("permission")) {
+        errorMessage = "Dosya yazma izni yok. Lütfen public klasörü yazılabilir olduğundan emin olun.";
+        statusCode = 500;
+      } else if (errorMessage.includes("ENOENT")) {
+        errorMessage = "Klasör bulunamadı. Dosya yolu geçersiz.";
+        statusCode = 500;
+      }
+    }
+    
     return NextResponse.json(
       { 
         success: false,
         error: errorMessage,
         details: process.env.NODE_ENV === "development" ? String(error) : undefined
       },
-      { status: 500 }
+      { status: statusCode }
     );
   }
 }
