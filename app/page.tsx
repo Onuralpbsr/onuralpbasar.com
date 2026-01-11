@@ -15,6 +15,9 @@ import {
   getBackgroundVideos,
 } from "@/lib/content";
 
+// Force dynamic rendering - disable caching so content updates appear immediately
+export const dynamic = 'force-dynamic';
+
 export default async function Home() {
   const [videos, brands, services, equipment, contact, backgrounds] =
     await Promise.all([
