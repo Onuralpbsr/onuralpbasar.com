@@ -77,18 +77,56 @@ export default function FileUpload({
         formData.append("customName", customName);
       }
 
-      const response = await fetch("/api/admin/upload", {
-        method: "POST",
-        body: formData,
+      // XMLHttpRequest kullanarak upload progress takibi
+      const xhr = new XMLHttpRequest();
+
+      // Upload progress event'i
+      xhr.upload.addEventListener("progress", (e) => {
+        if (e.lengthComputable) {
+          const percentComplete = Math.round((e.loaded / e.total) * 100);
+          setUploadProgress(percentComplete);
+        }
       });
 
-      const data = await response.json();
+      // Promise wrapper
+      const response = await new Promise<{ success: boolean; url?: string; error?: string }>(
+        (resolve, reject) => {
+          xhr.addEventListener("load", () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              try {
+                const data = JSON.parse(xhr.responseText);
+                resolve(data);
+              } catch {
+                reject(new Error("Geçersiz yanıt"));
+              }
+            } else {
+              try {
+                const data = JSON.parse(xhr.responseText);
+                resolve({ success: false, error: data.error || "Yükleme başarısız" });
+              } catch {
+                resolve({ success: false, error: "Yükleme başarısız" });
+              }
+            }
+          });
 
-      if (response.ok && data.success) {
-        onUploadComplete(data.url);
+          xhr.addEventListener("error", () => {
+            reject(new Error("Yükleme hatası"));
+          });
+
+          xhr.addEventListener("abort", () => {
+            reject(new Error("Yükleme iptal edildi"));
+          });
+
+          xhr.open("POST", "/api/admin/upload");
+          xhr.send(formData);
+        }
+      );
+
+      if (response.success && response.url) {
+        onUploadComplete(response.url);
         setUploadProgress(100);
       } else {
-        setError(data.error || "Yükleme başarısız");
+        setError(response.error || "Yükleme başarısız");
       }
     } catch (error) {
       console.error("Upload error:", error);
@@ -138,13 +176,18 @@ export default function FileUpload({
         />
 
         {isUploading ? (
-          <div className="space-y-2">
-            <div className="text-white/70">Yükleniyor...</div>
-            <div className="w-full bg-white/10 rounded-full h-2">
+          <div className="space-y-3">
+            <div className="text-white/70 text-center">
+              Yükleniyor... {uploadProgress}%
+            </div>
+            <div className="w-full bg-white/10 rounded-full h-3 overflow-hidden">
               <div
-                className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                className="bg-blue-500 h-3 rounded-full transition-all duration-200 ease-out"
                 style={{ width: `${uploadProgress}%` }}
               />
+            </div>
+            <div className="text-xs text-white/50 text-center">
+              {uploadProgress < 100 ? "Lütfen bekleyin..." : "Tamamlandı!"}
             </div>
           </div>
         ) : (
