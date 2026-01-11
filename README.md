@@ -2,6 +2,8 @@
 
 Modern luxury tarzda video prodüksiyon ve sosyal medya yönetimi portföy sitesi.
 
+> Webhook test - $(date)
+
 ## Özellikler
 
 - 🎬 Video galeri (yatay ve dikey format desteği)
