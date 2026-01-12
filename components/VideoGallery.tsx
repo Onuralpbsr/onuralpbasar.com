@@ -248,7 +248,7 @@ export default function VideoGallery({ videos, backgroundVideo }: VideoGalleryPr
   return (
     <section
       id="videos"
-      className="py-24 px-6 relative overflow-hidden"
+      className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 relative overflow-hidden"
       style={{ 
         background: "#232323",
         marginTop: "-1px",
@@ -285,20 +285,20 @@ export default function VideoGallery({ videos, backgroundVideo }: VideoGalleryPr
         }}
       />
       <div className="max-w-7xl mx-auto relative z-10">
-        <div className="text-center mb-16">
-          <h2 className="text-5xl md:text-6xl font-medium tracking-wider mb-4 text-white">
+        <div className="text-center mb-8 sm:mb-12 md:mb-16">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-medium tracking-wider mb-3 sm:mb-4 text-white">
             Videolar
           </h2>
-          <p className="text-white/70 font-normal text-lg max-w-2xl mx-auto">
+          <p className="text-white/70 font-normal text-base sm:text-lg max-w-2xl mx-auto px-2">
             Yatay ve dikey formatlarda ürettiğim video prodüksiyonlarım
           </p>
         </div>
 
         {/* Filter Buttons */}
-        <div className="flex justify-center gap-4 mb-12">
+        <div className="flex justify-center gap-2 sm:gap-4 mb-8 sm:mb-12 flex-wrap">
           <button
             onClick={() => setFilter("all")}
-            className={`px-6 py-2 font-normal tracking-wide transition-all duration-300 backdrop-blur-md ${
+            className={`px-4 sm:px-6 py-2 text-sm sm:text-base font-normal tracking-wide transition-all duration-300 backdrop-blur-md rounded ${
               filter === "all"
                 ? "border border-white/30 text-white bg-white/10 shadow-lg shadow-white/10"
                 : "border border-white/20 text-white/60 hover:text-white hover:border-white/30 hover:bg-white/5"
@@ -308,7 +308,7 @@ export default function VideoGallery({ videos, backgroundVideo }: VideoGalleryPr
           </button>
           <button
             onClick={() => setFilter("horizontal")}
-            className={`px-6 py-2 font-normal tracking-wide transition-all duration-300 backdrop-blur-md ${
+            className={`px-4 sm:px-6 py-2 text-sm sm:text-base font-normal tracking-wide transition-all duration-300 backdrop-blur-md rounded ${
               filter === "horizontal"
                 ? "border border-white/30 text-white bg-white/10 shadow-lg shadow-white/10"
                 : "border border-white/20 text-white/60 hover:text-white hover:border-white/30 hover:bg-white/5"
@@ -318,7 +318,7 @@ export default function VideoGallery({ videos, backgroundVideo }: VideoGalleryPr
           </button>
           <button
             onClick={() => setFilter("vertical")}
-            className={`px-6 py-2 font-normal tracking-wide transition-all duration-300 backdrop-blur-md ${
+            className={`px-4 sm:px-6 py-2 text-sm sm:text-base font-normal tracking-wide transition-all duration-300 backdrop-blur-md rounded ${
               filter === "vertical"
                 ? "border border-white/30 text-white bg-white/10 shadow-lg shadow-white/10"
                 : "border border-white/20 text-white/60 hover:text-white hover:border-white/30 hover:bg-white/5"
@@ -330,10 +330,10 @@ export default function VideoGallery({ videos, backgroundVideo }: VideoGalleryPr
 
         {/* Video Grid - Center Horizontal Layout with Equal Spacing */}
         <div 
-          className="flex flex-col gap-6"
+          className="flex flex-col gap-4 sm:gap-6"
         >
           {/* Top Row - 4 Videos */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {arrangedVideos.slice(0, 4).map((video) => (
               <VideoCard key={video.id} video={video} onSelect={setSelectedVideo} />
             ))}
@@ -341,7 +341,7 @@ export default function VideoGallery({ videos, backgroundVideo }: VideoGalleryPr
 
           {/* Center Row - Left Vertical + Horizontal + Right Vertical */}
           {arrangedVideos.length > 4 && (
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6 items-center">
               {/* Left Vertical Video - 3 columns */}
               {arrangedVideos[4] && (
                 <div className="md:col-span-3 flex justify-center">
@@ -367,7 +367,7 @@ export default function VideoGallery({ videos, backgroundVideo }: VideoGalleryPr
 
           {/* Bottom Row - 4 Videos */}
           {arrangedVideos.length > 6 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
               {arrangedVideos.slice(7, 11).map((video) => (
                 <VideoCard key={video.id} video={video} onSelect={setSelectedVideo} />
               ))}
@@ -379,14 +379,14 @@ export default function VideoGallery({ videos, backgroundVideo }: VideoGalleryPr
       {/* Video Modal */}
       {selectedVideo && (
         <div
-          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 md:p-6"
+          className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 md:p-6"
           onClick={() => setSelectedVideo(null)}
         >
           <div
-            className={`relative bg-white/5 backdrop-blur-xl border border-white/20 rounded-xl p-4 shadow-2xl shadow-black/50 ${
+            className={`relative bg-white/5 backdrop-blur-xl border border-white/20 rounded-lg sm:rounded-xl p-2 sm:p-4 shadow-2xl shadow-black/50 w-full ${
               selectedVideo.orientation === "vertical"
-                ? "max-w-sm w-full max-h-[90vh]"
-                : "max-w-6xl w-full"
+                ? "max-w-sm max-h-[95vh]"
+                : "max-w-6xl max-h-[95vh]"
             }`}
             onClick={(e) => e.stopPropagation()}
           >
@@ -397,11 +397,11 @@ export default function VideoGallery({ videos, backgroundVideo }: VideoGalleryPr
                   e.stopPropagation();
                   goToPrevVideo();
                 }}
-                className="absolute left-0 -translate-x-[120%] md:-translate-x-[150%] top-1/2 -translate-y-1/2 text-white hover:text-white/70 transition-colors bg-white/10 backdrop-blur-md border border-white/20 rounded-full w-12 h-12 md:w-14 md:h-14 flex items-center justify-center hover:bg-white/20 z-50"
+                className="absolute left-2 sm:left-0 sm:-translate-x-[120%] md:-translate-x-[150%] top-1/2 -translate-y-1/2 text-white hover:text-white/70 transition-colors bg-white/10 backdrop-blur-md border border-white/20 rounded-full w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 flex items-center justify-center hover:bg-white/20 z-50"
                 aria-label="Önceki video"
               >
                 <svg
-                  className="w-6 h-6 md:w-7 md:h-7"
+                  className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -423,11 +423,11 @@ export default function VideoGallery({ videos, backgroundVideo }: VideoGalleryPr
                   e.stopPropagation();
                   goToNextVideo();
                 }}
-                className="absolute right-0 translate-x-[120%] md:translate-x-[150%] top-1/2 -translate-y-1/2 text-white hover:text-white/70 transition-colors bg-white/10 backdrop-blur-md border border-white/20 rounded-full w-12 h-12 md:w-14 md:h-14 flex items-center justify-center hover:bg-white/20 z-50"
+                className="absolute right-2 sm:right-0 sm:translate-x-[120%] md:translate-x-[150%] top-1/2 -translate-y-1/2 text-white hover:text-white/70 transition-colors bg-white/10 backdrop-blur-md border border-white/20 rounded-full w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 flex items-center justify-center hover:bg-white/20 z-50"
                 aria-label="Sonraki video"
               >
                 <svg
-                  className="w-6 h-6 md:w-7 md:h-7"
+                  className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -443,7 +443,7 @@ export default function VideoGallery({ videos, backgroundVideo }: VideoGalleryPr
             )}
             <button
               onClick={() => setSelectedVideo(null)}
-              className="absolute -top-12 right-0 text-white text-2xl hover:text-white/70 transition-colors bg-white/10 backdrop-blur-md border border-white/20 rounded-full w-10 h-10 flex items-center justify-center hover:bg-white/20"
+              className="absolute -top-10 sm:-top-12 right-0 text-white text-xl sm:text-2xl hover:text-white/70 transition-colors bg-white/10 backdrop-blur-md border border-white/20 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center hover:bg-white/20 z-50"
             >
               ✕
             </button>
@@ -452,8 +452,8 @@ export default function VideoGallery({ videos, backgroundVideo }: VideoGalleryPr
               autoPlay
               className={`w-full h-auto rounded-lg ${
                 selectedVideo.orientation === "vertical"
-                  ? "max-h-[85vh] object-contain"
-                  : ""
+                  ? "max-h-[85vh] sm:max-h-[85vh] object-contain"
+                  : "max-h-[85vh] sm:max-h-[85vh] object-contain"
               }`}
               src={selectedVideo.videoUrl}
               key={selectedVideo.id}

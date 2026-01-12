@@ -44,7 +44,7 @@ export default function Services({ services, backgroundVideo }: ServicesProps) {
   return (
     <section
       id="services"
-      className="py-24 px-6 relative overflow-hidden"
+      className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 relative overflow-hidden"
       style={{ 
         background: "#1a1a1a",
         marginTop: "-1px", // Remove gap
@@ -72,38 +72,38 @@ export default function Services({ services, backgroundVideo }: ServicesProps) {
         <div className="absolute inset-0 bg-gradient-to-b from-[#1a1a1a]/80 via-[#1a1a1a]/60 to-[#1a1a1a]/80" />
       </div>
       <div className="max-w-7xl mx-auto relative z-10">
-        <div className="text-center mb-16">
-          <h2 className="text-5xl md:text-6xl font-medium tracking-wider mb-4 text-white">
+        <div className="text-center mb-8 sm:mb-12 md:mb-16">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-medium tracking-wider mb-3 sm:mb-4 text-white">
             Hizmetler
           </h2>
-          <p className="text-white/70 font-normal text-lg max-w-2xl mx-auto">
+          <p className="text-white/70 font-normal text-base sm:text-lg max-w-2xl mx-auto px-2">
             Sunduğum profesyonel hizmetler
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
           {services.map((service, index) => (
             <div
               key={service.id}
-              className="group relative p-8 bg-white/5 backdrop-blur-xl border border-white/20 hover:border-white/40 hover:bg-white/10 transition-all duration-300 rounded-xl shadow-lg shadow-black/20 hover:shadow-xl hover:shadow-black/30 overflow-hidden"
+              className="group relative p-6 sm:p-8 bg-white/5 backdrop-blur-xl border border-white/20 hover:border-white/40 hover:bg-white/10 transition-all duration-300 rounded-lg sm:rounded-xl shadow-lg shadow-black/20 hover:shadow-xl hover:shadow-black/30 overflow-hidden"
             >
               {/* Decorative gradient line on the left */}
               <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-white/0 via-white/40 to-white/0 group-hover:w-1.5 transition-all duration-300" />
               
               {/* Number badge */}
-              <div className="absolute top-6 right-6 text-white/20 group-hover:text-white/40 transition-colors duration-300 font-medium text-6xl md:text-7xl leading-none">
+              <div className="absolute top-4 right-4 sm:top-6 sm:right-6 text-white/20 group-hover:text-white/40 transition-colors duration-300 font-medium text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-none">
                 {String(index + 1).padStart(2, '0')}
               </div>
 
               {/* Title with decorative element */}
               <div className="relative z-10">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-1 h-6 bg-gradient-to-b from-white/60 to-white/20 rounded-full group-hover:h-8 transition-all duration-300" />
-                  <h3 className="text-2xl font-medium tracking-wide text-white">
+                <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                  <div className="w-1 h-5 sm:h-6 bg-gradient-to-b from-white/60 to-white/20 rounded-full group-hover:h-6 sm:group-hover:h-8 transition-all duration-300" />
+                  <h3 className="text-xl sm:text-2xl font-medium tracking-wide text-white">
                     {service.title}
                   </h3>
                 </div>
-                <p className="text-white/70 font-normal leading-relaxed">
+                <p className="text-sm sm:text-base text-white/70 font-normal leading-relaxed">
                   {service.description}
                 </p>
               </div>

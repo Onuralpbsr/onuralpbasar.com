@@ -308,7 +308,9 @@ export default function References({ brands }: ReferencesProps) {
 
     const container = scrollContainerRef.current;
     const containerWidth = container.clientWidth;
-    const itemWidth = 280 + 32; // width + gap (gap-8 = 32px)
+    // Responsive item width: 240px (mobile) + gap (16px mobile, 24px sm, 32px md+)
+    const gap = containerWidth < 640 ? 16 : containerWidth < 768 ? 24 : 32;
+    const itemWidth = 240 + gap;
     const itemLeft = index * itemWidth;
     const itemCenter = itemLeft + itemWidth / 2;
     const containerCenter = containerWidth / 2;
@@ -338,7 +340,7 @@ export default function References({ brands }: ReferencesProps) {
   return (
     <section
       id="references"
-      className="py-24 px-6"
+      className="py-12 sm:py-16 md:py-24 px-4 sm:px-6"
       style={{ 
         background: "#1a1a1a",
         position: "relative",
@@ -354,11 +356,11 @@ export default function References({ brands }: ReferencesProps) {
         }}
       />
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-5xl md:text-6xl font-medium tracking-wider mb-4 text-white">
+        <div className="text-center mb-8 sm:mb-12 md:mb-16">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-medium tracking-wider mb-3 sm:mb-4 text-white">
             Referanslar
           </h2>
-          <p className="text-white/70 font-normal text-lg max-w-2xl mx-auto">
+          <p className="text-white/70 font-normal text-base sm:text-lg max-w-2xl mx-auto px-2">
             Hizmet verdiğim markalar ve iş ortaklarım
           </p>
         </div>
@@ -367,7 +369,7 @@ export default function References({ brands }: ReferencesProps) {
         <div className="overflow-hidden">
           <div
             ref={scrollContainerRef}
-            className="flex gap-8 md:gap-12 hide-scrollbar cursor-grab active:cursor-grabbing"
+            className="flex gap-4 sm:gap-6 md:gap-8 lg:gap-12 hide-scrollbar cursor-grab active:cursor-grabbing"
             style={{
               scrollBehavior: "auto",
               overflowX: "auto",
@@ -389,16 +391,16 @@ export default function References({ brands }: ReferencesProps) {
                 key={`${brand.id}-${index}`}
                 className="group flex flex-col items-center flex-shrink-0"
                 style={{ 
-                  minWidth: "280px", 
-                  width: "280px",
+                  minWidth: "240px",
+                  width: "240px",
                   transform: itemStyle.transform,
                   opacity: itemStyle.opacity,
                   transition: itemStyle.transition,
                   transformOrigin: "center center",
                 }}
               >
-                <div className="w-full h-48 flex items-center justify-center p-8 bg-white/5 backdrop-blur-xl border border-white/20 hover:border-white/40 hover:bg-white/10 mb-3 rounded-lg shadow-lg shadow-black/20 hover:shadow-xl hover:shadow-black/30">
-                  <div className="relative w-full h-32 flex items-center justify-center grayscale group-hover:grayscale-0 transition-all duration-300">
+                <div className="w-full h-40 sm:h-48 flex items-center justify-center p-4 sm:p-6 md:p-8 bg-white/5 backdrop-blur-xl border border-white/20 hover:border-white/40 hover:bg-white/10 mb-2 sm:mb-3 rounded-lg shadow-lg shadow-black/20 hover:shadow-xl hover:shadow-black/30">
+                  <div className="relative w-full h-24 sm:h-32 flex items-center justify-center grayscale group-hover:grayscale-0 transition-all duration-300">
                     <img
                       src={brand.logo}
                       alt={brand.name}
@@ -415,12 +417,12 @@ export default function References({ brands }: ReferencesProps) {
                     href={brand.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-white/60 text-sm md:text-base font-normal text-center hover:text-white/80 transition-colors duration-300 underline-offset-2 hover:underline"
+                    className="text-white/60 text-xs sm:text-sm md:text-base font-normal text-center hover:text-white/80 transition-colors duration-300 underline-offset-2 hover:underline px-2"
                   >
                     {brand.name}
                   </a>
                 ) : (
-                  <span className="text-white/60 text-sm md:text-base font-normal text-center group-hover:text-white/80 transition-colors duration-300">
+                  <span className="text-white/60 text-xs sm:text-sm md:text-base font-normal text-center group-hover:text-white/80 transition-colors duration-300 px-2">
                     {brand.name}
                   </span>
                 )}

@@ -199,7 +199,7 @@ export default function Contact({ contactData, backgroundVideo }: ContactProps) 
   return (
     <section
       id="contact"
-      className="py-24 px-6 relative overflow-hidden"
+      className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 relative overflow-hidden"
       style={{ 
         background: "#1a1a1a",
         marginTop: "-1px", // Remove gap
@@ -231,22 +231,22 @@ export default function Contact({ contactData, backgroundVideo }: ContactProps) 
         <div className="absolute inset-0 bg-gradient-to-b from-[#1a1a1a]/80 via-[#1a1a1a]/60 to-[#1a1a1a]/80" />
       </div>
       <div className="max-w-4xl mx-auto relative z-10">
-        <div className="text-center mb-16">
-          <h2 className="text-5xl md:text-6xl font-medium tracking-wider mb-4 text-white">
+        <div className="text-center mb-8 sm:mb-12 md:mb-16">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-medium tracking-wider mb-3 sm:mb-4 text-white">
             İletişim
           </h2>
-          <p className="text-white/70 font-normal text-lg max-w-2xl mx-auto">
+          <p className="text-white/70 font-normal text-base sm:text-lg max-w-2xl mx-auto px-2">
             Projeleriniz için benimle iletişime geçin
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-10 md:gap-12">
           {/* Contact Info */}
           <div>
-            <h3 className="text-2xl font-medium tracking-wide mb-6 text-white">
+            <h3 className="text-xl sm:text-2xl font-medium tracking-wide mb-4 sm:mb-6 text-white">
               Bilgiler
             </h3>
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               <div>
                 <div className="text-sm text-white/50 font-normal mb-2">
                   Telefon
@@ -303,8 +303,8 @@ export default function Contact({ contactData, backgroundVideo }: ContactProps) 
             </div>
 
             {/* Social Media */}
-            <div className="mt-12">
-              <div className="text-sm text-white/50 font-normal mb-4">
+            <div className="mt-8 sm:mt-12">
+              <div className="text-sm text-white/50 font-normal mb-3 sm:mb-4">
                 Sosyal Medya
               </div>
               <div className="flex gap-4">
@@ -343,7 +343,7 @@ export default function Contact({ contactData, backgroundVideo }: ContactProps) 
           </div>
 
           {/* Contact Form */}
-          <form onSubmit={handleSubmit} className="space-y-6 bg-white/5 backdrop-blur-xl border border-white/20 rounded-xl p-8 shadow-lg shadow-black/20">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 bg-white/5 backdrop-blur-xl border border-white/20 rounded-lg sm:rounded-xl p-6 sm:p-8 shadow-lg shadow-black/20">
             <div>
               <label
                 htmlFor="name"
@@ -358,7 +358,7 @@ export default function Contact({ contactData, backgroundVideo }: ContactProps) 
                 value={formData.name}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 bg-white/5 backdrop-blur-md border border-white/20 text-white placeholder-white/40 focus:outline-none focus:border-white/40 focus:bg-white/10 transition-all font-normal rounded-lg"
+                className="w-full px-4 py-2.5 sm:py-3 bg-white/5 backdrop-blur-md border border-white/20 text-white placeholder-white/40 focus:outline-none focus:border-white/40 focus:bg-white/10 transition-all font-normal rounded-lg text-sm sm:text-base"
                 placeholder="Adınız Soyadınız"
               />
             </div>
@@ -376,7 +376,7 @@ export default function Contact({ contactData, backgroundVideo }: ContactProps) 
                 value={formData.email}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 bg-white/5 backdrop-blur-md border border-white/20 text-white placeholder-white/40 focus:outline-none focus:border-white/40 focus:bg-white/10 transition-all font-normal rounded-lg"
+                className="w-full px-4 py-2.5 sm:py-3 bg-white/5 backdrop-blur-md border border-white/20 text-white placeholder-white/40 focus:outline-none focus:border-white/40 focus:bg-white/10 transition-all font-normal rounded-lg text-sm sm:text-base"
                 placeholder="email@example.com"
               />
             </div>
@@ -393,14 +393,14 @@ export default function Contact({ contactData, backgroundVideo }: ContactProps) 
                 value={formData.message}
                 onChange={handleChange}
                 required
-                rows={6}
-                className="w-full px-4 py-3 bg-white/5 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:border-white/50 transition-colors font-normal resize-none"
+                rows={5}
+                className="w-full px-4 py-2.5 sm:py-3 bg-white/5 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:border-white/50 transition-colors font-normal resize-none rounded-lg text-sm sm:text-base"
                 placeholder="Mesajınızı buraya yazın..."
               />
             </div>
             <button
               type="submit"
-              className="w-full px-8 py-3 bg-white/10 backdrop-blur-md border border-white/30 text-white font-normal tracking-wide hover:bg-white/20 hover:border-white/40 transition-all duration-300 shadow-lg shadow-white/10 rounded-lg"
+              className="w-full px-6 sm:px-8 py-2.5 sm:py-3 bg-white/10 backdrop-blur-md border border-white/30 text-white font-normal tracking-wide hover:bg-white/20 hover:border-white/40 transition-all duration-300 shadow-lg shadow-white/10 rounded-lg text-sm sm:text-base"
             >
               Gönder
             </button>

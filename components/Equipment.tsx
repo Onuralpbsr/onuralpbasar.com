@@ -52,28 +52,28 @@ export default function Equipment({ equipment, categories }: EquipmentProps) {
     <section
       ref={sectionRef}
       id="equipment"
-      className="py-24 px-6 relative overflow-hidden"
+      className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 relative overflow-hidden"
       style={{ background: "#1a1a1a" }}
     >
       <div className="max-w-7xl mx-auto relative z-10">
         <div
-          className={`text-center mb-16 transition-all duration-1000 ${
+          className={`text-center mb-8 sm:mb-12 md:mb-16 transition-all duration-1000 ${
             isVisible
               ? "opacity-100 translate-y-0"
               : "opacity-0 translate-y-10"
           }`}
         >
-          <h2 className="text-5xl md:text-6xl font-medium tracking-wider mb-4 text-white">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-medium tracking-wider mb-3 sm:mb-4 text-white">
             Ekipmanlar
           </h2>
-          <p className="text-white/70 font-normal text-lg max-w-2xl mx-auto">
+          <p className="text-white/70 font-normal text-base sm:text-lg max-w-2xl mx-auto px-2">
             Kullandığım profesyonel ekipmanlar ve yazılımlar
           </p>
         </div>
 
         {/* Category Filter */}
         <div
-          className={`flex flex-wrap justify-center gap-4 mb-12 transition-all duration-1000 delay-200 ${
+          className={`flex flex-wrap justify-center gap-2 sm:gap-4 mb-8 sm:mb-12 transition-all duration-1000 delay-200 ${
             isVisible
               ? "opacity-100 translate-y-0"
               : "opacity-0 translate-y-10"
@@ -83,7 +83,7 @@ export default function Equipment({ equipment, categories }: EquipmentProps) {
             <button
               key={category}
               onClick={() => setSelectedCategory(category)}
-              className={`px-6 py-2 font-normal tracking-wide transition-all duration-300 ${
+              className={`px-4 sm:px-6 py-2 text-sm sm:text-base font-normal tracking-wide transition-all duration-300 rounded ${
                 selectedCategory === category
                   ? "border border-white/50 text-white bg-white/10"
                   : "border border-white/20 text-white/60 hover:text-white hover:border-white/40"
@@ -95,11 +95,11 @@ export default function Equipment({ equipment, categories }: EquipmentProps) {
         </div>
 
         {/* Equipment Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {filteredEquipment.map((item, index) => (
             <div
               key={item.id}
-              className={`p-6 bg-white/5 backdrop-blur-xl border border-white/20 hover:border-white/40 hover:bg-white/10 rounded-lg shadow-lg shadow-black/20 hover:shadow-xl hover:shadow-black/30 transition-all duration-700 ${
+              className={`p-4 sm:p-6 bg-white/5 backdrop-blur-xl border border-white/20 hover:border-white/40 hover:bg-white/10 rounded-lg shadow-lg shadow-black/20 hover:shadow-xl hover:shadow-black/30 transition-all duration-700 ${
                 isVisible
                   ? "opacity-100 translate-y-0"
                   : "opacity-0 translate-y-10"
@@ -108,14 +108,14 @@ export default function Equipment({ equipment, categories }: EquipmentProps) {
                 transitionDelay: isVisible ? `${index * 100}ms` : "0ms",
               }}
             >
-              <div className="text-sm text-white/50 font-normal mb-2">
+              <div className="text-xs sm:text-sm text-white/50 font-normal mb-2">
                 {item.category}
               </div>
-              <h3 className="text-xl font-medium tracking-wide mb-2 text-white">
+              <h3 className="text-lg sm:text-xl font-medium tracking-wide mb-2 text-white">
                 {item.name}
               </h3>
               {item.description && (
-                <p className="text-white/60 text-sm font-normal">
+                <p className="text-white/60 text-xs sm:text-sm font-normal">
                   {item.description}
                 </p>
               )}

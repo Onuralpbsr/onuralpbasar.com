@@ -48,6 +48,9 @@ body {
   -moz-osx-font-smoothing: grayscale;
   position: relative;
   overflow-x: hidden;
+  /* Touch optimization for mobile */
+  -webkit-tap-highlight-color: transparent;
+  touch-action: pan-y;
 }
 
 /* Luxury Mesh Gradient Background */
@@ -160,8 +163,8 @@ body::after {
 .content {
   position: relative;
   z-index: 1;
-  padding-top: 30%;
-  width: 90%;
+  padding-top: 40%;
+  width: 95%;
   margin: 0 auto;
   display: flex;
   align-items: center;
@@ -169,6 +172,13 @@ body::after {
 }
 
 @media only screen and (min-width: 36.250em) {
+  .content {
+    width: 90%;
+    padding-top: 30%;
+  }
+}
+
+@media only screen and (min-width: 48em) {
   .content {
     width: 60%;
     padding-top: 20%;
@@ -265,6 +275,22 @@ body::after {
   .hide-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+    /* Smooth scrolling on mobile */
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Mobile touch optimizations */
+  button, a {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  
+  /* Better text rendering on mobile */
+  @media (max-width: 768px) {
+    body {
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
   }
 }
 
