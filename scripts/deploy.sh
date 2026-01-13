@@ -30,10 +30,61 @@ PROJECT_DIR=$(pwd)
 
 log "Deploy başlatılıyor: $PROJECT_DIR"
 
+# ÖNEMLİ: VPS'deki içerik dosyalarını ve yüklenen dosyaları koru
+# Admin panelinden yüklenen videolar, görseller ve JSON dosyaları korunmalı
+log "VPS'deki içerik dosyaları yedekleniyor..."
+BACKUP_DIR="/tmp/portfolio_backup_$(date +%s)"
+mkdir -p "$BACKUP_DIR"
+
+# content/ klasörünü yedekle (JSON dosyaları - admin panelinden güncellenenler)
+if [ -d "content" ]; then
+    cp -r content "$BACKUP_DIR/content" 2>/dev/null || true
+    log "content/ klasörü yedeklendi"
+fi
+
+# public/ klasöründeki yüklenen dosyaları yedekle (videolar, görseller)
+if [ -d "public" ]; then
+    # Tüm public/ klasörünü yedekle (git'te olmayan dosyalar dahil)
+    cp -r public "$BACKUP_DIR/public" 2>/dev/null || true
+    log "public/ klasöründeki yüklenen dosyalar yedeklendi"
+fi
+
 # Git pull
 log "Git pull yapılıyor..."
 git fetch origin
 git reset --hard origin/main 2>/dev/null || git reset --hard origin/master 2>/dev/null
+
+# Yedeklenen dosyaları geri yükle
+log "VPS'deki içerik dosyaları geri yükleniyor..."
+if [ -d "$BACKUP_DIR/content" ]; then
+    # content/ klasöründeki her JSON dosyası için:
+    # VPS'deki versiyonu her zaman koru (admin panelinden güncellenenler öncelikli)
+    for json_file in "$BACKUP_DIR/content"/*.json; do
+        if [ -f "$json_file" ]; then
+            filename=$(basename "$json_file")
+            backup_file="$BACKUP_DIR/content/$filename"
+            current_file="content/$filename"
+            
+            # VPS'deki dosyayı her zaman koru (admin panelinden güncellenenler)
+            # Bu, admin panelinden yapılan değişikliklerin kaybolmasını önler
+            cp "$backup_file" "$current_file" 2>/dev/null || true
+            log "  ✓ $filename geri yüklendi (VPS değişiklikleri korundu)"
+        fi
+    done
+    log "Tüm content/ dosyaları VPS versiyonlarıyla güncellendi"
+fi
+
+# public/ klasöründeki yüklenen dosyaları geri yükle
+if [ -d "$BACKUP_DIR/public" ]; then
+    # public/ klasöründeki tüm dosyaları geri yükle
+    # Önce mevcut dosyaları kontrol et, sonra yedekten geri yükle
+    rsync -a "$BACKUP_DIR/public/" public/ 2>/dev/null || cp -r "$BACKUP_DIR/public"/* public/ 2>/dev/null || true
+    log "public/ klasöründeki yüklenen dosyalar geri yüklendi"
+fi
+
+# Yedek klasörünü temizle
+rm -rf "$BACKUP_DIR" 2>/dev/null || true
+log "Yedek temizlendi"
 
 # Yeni commit bilgisi
 COMMIT_HASH=$(git rev-parse --short HEAD)

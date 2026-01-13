@@ -258,18 +258,28 @@ export default function VideosManager() {
                         label="Kapak Fotoğrafı (Thumbnail)"
                         accept="image/*"
                         currentFile={formData.thumbnail}
-                        onUploadComplete={(url) =>
-                          setFormData({ ...formData, thumbnail: url })
-                        }
+                        onUploadComplete={(url) => {
+                          const updatedFormData = { ...formData, thumbnail: url };
+                          setFormData(updatedFormData);
+                          // Otomatik olarak videos array'ini de güncelle
+                          if (editingId) {
+                            setVideos(videos.map((v) => (v.id === editingId ? updatedFormData : v)));
+                          }
+                        }}
                         description="Video için kapak fotoğrafı yükleyin (JPG, PNG)"
                       />
                       <div className="mt-2">
                         <input
                           type="text"
                           value={formData.thumbnail}
-                          onChange={(e) =>
-                            setFormData({ ...formData, thumbnail: e.target.value })
-                          }
+                          onChange={(e) => {
+                            const updatedFormData = { ...formData, thumbnail: e.target.value };
+                            setFormData(updatedFormData);
+                            // Otomatik olarak videos array'ini de güncelle
+                            if (editingId) {
+                              setVideos(videos.map((v) => (v.id === editingId ? updatedFormData : v)));
+                            }
+                          }}
                           className="w-full px-4 py-2 bg-white/5 border border-white/20 text-white rounded-lg text-sm"
                           placeholder="veya manuel olarak yol girin: /path/to/image.jpg"
                         />
@@ -280,18 +290,28 @@ export default function VideosManager() {
                         label="Video Dosyası"
                         accept="video/*"
                         currentFile={formData.videoUrl}
-                        onUploadComplete={(url) =>
-                          setFormData({ ...formData, videoUrl: url })
-                        }
+                        onUploadComplete={(url) => {
+                          const updatedFormData = { ...formData, videoUrl: url };
+                          setFormData(updatedFormData);
+                          // Otomatik olarak videos array'ini de güncelle
+                          if (editingId) {
+                            setVideos(videos.map((v) => (v.id === editingId ? updatedFormData : v)));
+                          }
+                        }}
                         description="Video dosyasını yükleyin (MP4, MOV, vb.)"
                       />
                       <div className="mt-2">
                         <input
                           type="text"
                           value={formData.videoUrl}
-                          onChange={(e) =>
-                            setFormData({ ...formData, videoUrl: e.target.value })
-                          }
+                          onChange={(e) => {
+                            const updatedFormData = { ...formData, videoUrl: e.target.value };
+                            setFormData(updatedFormData);
+                            // Otomatik olarak videos array'ini de güncelle
+                            if (editingId) {
+                              setVideos(videos.map((v) => (v.id === editingId ? updatedFormData : v)));
+                            }
+                          }}
                           className="w-full px-4 py-2 bg-white/5 border border-white/20 text-white rounded-lg text-sm"
                           placeholder="veya manuel olarak yol girin: /path/to/video.mp4"
                         />
@@ -311,8 +331,8 @@ export default function VideosManager() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <div className="bg-blue-500/20 border border-blue-500/50 rounded-lg p-3 text-sm text-blue-300">
-                        💡 <strong>Önemli:</strong> Dosya yükledikten sonra "Güncelle" butonuna basın, ardından sayfanın üstündeki "Kaydet" butonuna basarak değişiklikleri kaydedin.
+                      <div className="bg-green-500/20 border border-green-500/50 rounded-lg p-3 text-sm text-green-300">
+                        ✅ <strong>Bilgi:</strong> Dosya yükledikten sonra otomatik olarak kaydedilir. Değişiklikleri kaydetmek için sayfanın üstündeki "Kaydet" butonuna basın.
                       </div>
                       <div className="flex gap-4">
                         <button

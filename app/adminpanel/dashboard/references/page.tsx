@@ -233,18 +233,28 @@ export default function ReferencesManager() {
                         accept="image/*"
                         folder="brands"
                         currentFile={formData.logo}
-                        onUploadComplete={(url) =>
-                          setFormData({ ...formData, logo: url })
-                        }
+                        onUploadComplete={(url) => {
+                          const updatedFormData = { ...formData, logo: url };
+                          setFormData(updatedFormData);
+                          // Otomatik olarak brands array'ini de güncelle
+                          if (editingId) {
+                            setBrands(brands.map((b) => (b.id === editingId ? updatedFormData : b)));
+                          }
+                        }}
                         description="Marka logosunu yükleyin (PNG, JPG, SVG)"
                       />
                       <div className="mt-2">
                         <input
                           type="text"
                           value={formData.logo}
-                          onChange={(e) =>
-                            setFormData({ ...formData, logo: e.target.value })
-                          }
+                          onChange={(e) => {
+                            const updatedFormData = { ...formData, logo: e.target.value };
+                            setFormData(updatedFormData);
+                            // Otomatik olarak brands array'ini de güncelle
+                            if (editingId) {
+                              setBrands(brands.map((b) => (b.id === editingId ? updatedFormData : b)));
+                            }
+                          }}
                           className="w-full px-4 py-2 bg-white/5 border border-white/20 text-white rounded-lg text-sm"
                           placeholder="veya manuel olarak yol girin: /brands/logo.png"
                         />
@@ -264,19 +274,24 @@ export default function ReferencesManager() {
                         placeholder="https://example.com"
                       />
                     </div>
-                    <div className="flex gap-4">
-                      <button
-                        onClick={handleUpdate}
-                        className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg"
-                      >
-                        Güncelle
-                      </button>
-                      <button
-                        onClick={handleCancel}
-                        className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg"
-                      >
-                        İptal
-                      </button>
+                    <div className="space-y-2">
+                      <div className="bg-green-500/20 border border-green-500/50 rounded-lg p-3 text-sm text-green-300">
+                        ✅ <strong>Bilgi:</strong> Logo yükledikten sonra otomatik olarak kaydedilir. Değişiklikleri kaydetmek için sayfanın üstündeki "Kaydet" butonuna basın.
+                      </div>
+                      <div className="flex gap-4">
+                        <button
+                          onClick={handleUpdate}
+                          className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg"
+                        >
+                          Güncelle
+                        </button>
+                        <button
+                          onClick={handleCancel}
+                          className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg"
+                        >
+                          İptal
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ) : (
