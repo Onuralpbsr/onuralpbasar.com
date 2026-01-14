@@ -33,10 +33,18 @@ export default function ReferencesManager() {
   const loadBrands = async () => {
     try {
       const response = await fetch("/api/admin/content?type=brands");
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const data = await response.json();
+      console.log("Brands yüklendi:", data);
       setBrands(data);
     } catch (error) {
-      setMessage({ type: "error", text: "Referanslar yüklenemedi" });
+      console.error("Brands yükleme hatası:", error);
+      setMessage({ 
+        type: "error", 
+        text: `Referanslar yüklenemedi: ${error instanceof Error ? error.message : "Bilinmeyen hata"}` 
+      });
     } finally {
       setLoading(false);
     }
@@ -47,6 +55,7 @@ export default function ReferencesManager() {
     setMessage(null);
 
     try {
+      console.log("Kaydediliyor, brands:", brands);
       const response = await fetch("/api/admin/content", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -54,12 +63,30 @@ export default function ReferencesManager() {
       });
 
       if (response.ok) {
-        setMessage({ type: "success", text: "Referanslar başarıyla kaydedildi" });
+        const result = await response.json();
+        console.log("Kaydetme başarılı:", result);
+        setMessage({ 
+          type: "success", 
+          text: "Referanslar başarıyla kaydedildi. Sayfayı yenileyerek değişiklikleri görebilirsiniz." 
+        });
+        // Sayfayı yenile (isteğe bağlı)
+        setTimeout(() => {
+          loadBrands();
+        }, 1000);
       } else {
-        setMessage({ type: "error", text: "Kaydetme başarısız" });
+        const errorData = await response.json().catch(() => ({}));
+        console.error("Kaydetme hatası:", errorData);
+        setMessage({ 
+          type: "error", 
+          text: `Kaydetme başarısız: ${errorData.error || response.statusText}` 
+        });
       }
     } catch (error) {
-      setMessage({ type: "error", text: "Bir hata oluştu" });
+      console.error("Kaydetme hatası:", error);
+      setMessage({ 
+        type: "error", 
+        text: `Bir hata oluştu: ${error instanceof Error ? error.message : "Bilinmeyen hata"}` 
+      });
     } finally {
       setSaving(false);
     }
@@ -205,10 +232,32 @@ export default function ReferencesManager() {
                   ? "bg-green-500/20 border border-green-500/50 text-green-300"
                   : "bg-red-500/20 border border-red-500/50 text-red-300"
               }`}
+              onClick={() => setMessage(null)}
+              style={{ cursor: "pointer" }}
             >
               {message.text}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setMessage(null);
+                }}
+                className="float-right text-white/70 hover:text-white"
+              >
+                ✕
+              </button>
             </div>
           )}
+          
+          <div className="bg-blue-500/20 border border-blue-500/50 rounded-lg p-4 mb-6 text-sm text-blue-300">
+            <strong>📋 Kullanım Talimatları:</strong>
+            <ol className="list-decimal list-inside mt-2 space-y-1 text-white/80">
+              <li>Bir referansı düzenlemek için "Düzenle" butonuna tıklayın</li>
+              <li>Logo yüklemek için dosyayı sürükleyip bırakın veya tıklayarak seçin</li>
+              <li>Logo yüklendikten sonra önizleme görünecektir</li>
+              <li><strong>ÖNEMLİ:</strong> Tüm değişiklikleri kaydetmek için mutlaka üstteki "Kaydet" butonuna basın!</li>
+              <li>Kaydetme işleminden sonra sayfayı yenileyerek değişiklikleri kontrol edin</li>
+            </ol>
+          </div>
 
           <div className="space-y-4">
             {brands.map((brand) => (
@@ -247,17 +296,24 @@ export default function ReferencesManager() {
                         folder="brands"
                         currentFile={formData.logo}
                         onUploadComplete={(url) => {
+                          console.log("Logo yüklendi:", url);
                           // formData'yı güncelle
                           const updatedFormData = { ...formData, logo: url };
                           setFormData(updatedFormData);
                           
                           // brands array'ini de güncelle - editingId kontrolü ile
                           if (editingId) {
-                            setBrands((prevBrands) => 
-                              prevBrands.map((b) => 
+                            setBrands((prevBrands) => {
+                              const updated = prevBrands.map((b) => 
                                 b.id === editingId ? { ...updatedFormData } : b
-                              )
-                            );
+                              );
+                              console.log("Brands array güncellendi:", updated);
+                              return updated;
+                            });
+                            setMessage({ 
+                              type: "success", 
+                              text: `Logo başarıyla yüklendi: ${url}. Değişiklikleri kalıcı hale getirmek için üstteki "Kaydet" butonuna basın.` 
+                            });
                           }
                         }}
                         description="Marka logosunu yükleyin (PNG, JPG, SVG)"
@@ -328,8 +384,11 @@ export default function ReferencesManager() {
                       />
                     </div>
                     <div className="space-y-2">
+                      <div className="bg-yellow-500/20 border border-yellow-500/50 rounded-lg p-3 text-sm text-yellow-300">
+                        ⚠️ <strong>Önemli:</strong> Logo yükledikten sonra, değişiklikleri kalıcı hale getirmek için mutlaka sayfanın üstündeki <strong>"Kaydet"</strong> butonuna basın! Aksi halde logo kaydedilmez.
+                      </div>
                       <div className="bg-green-500/20 border border-green-500/50 rounded-lg p-3 text-sm text-green-300">
-                        ✅ <strong>Bilgi:</strong> Tüm değişiklikler (logo dahil) otomatik olarak kaydedilir. Değişiklikleri kalıcı hale getirmek için sayfanın üstündeki "Kaydet" butonuna basın.
+                        ✅ <strong>Bilgi:</strong> Logo yüklendikten sonra önizleme gösterilecektir. Logo görünmüyorsa dosya yüklenmemiş olabilir.
                       </div>
                       <div className="flex gap-4">
                         <button
@@ -353,10 +412,30 @@ export default function ReferencesManager() {
                       <h3 className="text-lg font-medium text-white mb-2">
                         {brand.name || "İsimsiz Marka"}
                       </h3>
-                      <div className="flex gap-4 text-sm text-white/50">
-                        <span>Logo: {brand.logo}</span>
-                        <span>Website: {brand.website}</span>
+                      <div className="flex gap-4 text-sm text-white/50 mb-2">
+                        <span>Logo: {brand.logo || "Yok"}</span>
+                        <span>Website: {brand.website || "Yok"}</span>
                       </div>
+                      {brand.logo && (
+                        <div className="mt-2 p-2 bg-white/5 border border-white/10 rounded">
+                          <p className="text-xs text-white/70 mb-1">Logo Önizleme:</p>
+                          <div className="flex items-center justify-center h-16 bg-white/5 rounded">
+                            <img
+                              src={brand.logo}
+                              alt={brand.name}
+                              className="max-w-full max-h-full object-contain"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.style.display = "none";
+                                const parent = target.parentElement;
+                                if (parent) {
+                                  parent.innerHTML = '<p class="text-red-400 text-xs">⚠️ Görsel bulunamadı! Lütfen logo yükleyin.</p>';
+                                }
+                              }}
+                            />
+                          </div>
+                        </div>
+                      )}
                     </div>
                     <div className="flex gap-2">
                       <button
