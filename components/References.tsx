@@ -399,7 +399,12 @@ export default function References({ brands }: ReferencesProps) {
                   transformOrigin: "center center",
                 }}
               >
-                <div className="w-full aspect-square flex items-center justify-center p-4 sm:p-6 md:p-8 bg-white/5 backdrop-blur-xl border border-white/20 hover:border-white/40 hover:bg-white/10 mb-2 sm:mb-3 rounded-lg shadow-lg shadow-black/20 hover:shadow-xl hover:shadow-black/30">
+                <div 
+                  className="w-full aspect-square flex items-center justify-center p-4 sm:p-6 md:p-8 backdrop-blur-xl border border-white/20 hover:border-white/40 mb-2 sm:mb-3 rounded-lg shadow-lg shadow-black/20 hover:shadow-xl hover:shadow-black/30"
+                  style={{
+                    background: "radial-gradient(circle at center, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.9) 30%, rgba(255, 255, 255, 0.5) 60%, rgba(255, 255, 255, 0.05) 100%)"
+                  }}
+                >
                   <div className="relative w-full h-full flex items-center justify-center grayscale group-hover:grayscale-0 transition-all duration-300">
                     <img
                       src={brand.logo}
