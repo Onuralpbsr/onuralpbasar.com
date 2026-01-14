@@ -93,8 +93,12 @@ export default function ReferencesManager() {
   };
 
   const handleUpdate = () => {
-    setBrands(brands.map((b) => (b.id === editingId ? formData : b)));
-    setEditingId(null);
+    if (editingId) {
+      // formData'daki güncel verileri brands array'ine yaz
+      const updatedBrands = brands.map((b) => (b.id === editingId ? { ...formData } : b));
+      setBrands(updatedBrands);
+      setEditingId(null);
+    }
   };
 
   const handleCancel = () => {
@@ -221,9 +225,18 @@ export default function ReferencesManager() {
                       <input
                         type="text"
                         value={formData.name}
-                        onChange={(e) =>
-                          setFormData({ ...formData, name: e.target.value })
-                        }
+                        onChange={(e) => {
+                          const updatedFormData = { ...formData, name: e.target.value };
+                          setFormData(updatedFormData);
+                          // brands array'ini de güncelle
+                          if (editingId) {
+                            setBrands((prevBrands) => 
+                              prevBrands.map((b) => 
+                                b.id === editingId ? { ...updatedFormData } : b
+                              )
+                            );
+                          }
+                        }}
                         className="w-full px-4 py-2 bg-white/5 border border-white/20 text-white rounded-lg"
                       />
                     </div>
@@ -234,11 +247,17 @@ export default function ReferencesManager() {
                         folder="brands"
                         currentFile={formData.logo}
                         onUploadComplete={(url) => {
+                          // formData'yı güncelle
                           const updatedFormData = { ...formData, logo: url };
                           setFormData(updatedFormData);
-                          // Otomatik olarak brands array'ini de güncelle
+                          
+                          // brands array'ini de güncelle - editingId kontrolü ile
                           if (editingId) {
-                            setBrands(brands.map((b) => (b.id === editingId ? updatedFormData : b)));
+                            setBrands((prevBrands) => 
+                              prevBrands.map((b) => 
+                                b.id === editingId ? { ...updatedFormData } : b
+                              )
+                            );
                           }
                         }}
                         description="Marka logosunu yükleyin (PNG, JPG, SVG)"
@@ -250,15 +269,40 @@ export default function ReferencesManager() {
                           onChange={(e) => {
                             const updatedFormData = { ...formData, logo: e.target.value };
                             setFormData(updatedFormData);
-                            // Otomatik olarak brands array'ini de güncelle
+                            // brands array'ini de güncelle - editingId kontrolü ile
                             if (editingId) {
-                              setBrands(brands.map((b) => (b.id === editingId ? updatedFormData : b)));
+                              setBrands((prevBrands) => 
+                                prevBrands.map((b) => 
+                                  b.id === editingId ? { ...updatedFormData } : b
+                                )
+                              );
                             }
                           }}
                           className="w-full px-4 py-2 bg-white/5 border border-white/20 text-white rounded-lg text-sm"
                           placeholder="veya manuel olarak yol girin: /brands/logo.png"
                         />
                       </div>
+                      {formData.logo && (
+                        <div className="mt-3 p-3 bg-white/5 border border-white/20 rounded-lg">
+                          <p className="text-xs text-white/70 mb-2">Logo Önizleme:</p>
+                          <div className="flex items-center justify-center h-24 bg-white/5 rounded border border-white/10">
+                            <img
+                              src={formData.logo}
+                              alt="Logo önizleme"
+                              className="max-w-full max-h-full object-contain"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.style.display = "none";
+                                const parent = target.parentElement;
+                                if (parent) {
+                                  parent.innerHTML = '<p class="text-red-400 text-xs">Görsel yüklenemedi. URL\'yi kontrol edin.</p>';
+                                }
+                              }}
+                            />
+                          </div>
+                          <p className="text-xs text-white/50 mt-2 break-all">{formData.logo}</p>
+                        </div>
+                      )}
                     </div>
                     <div>
                       <label className="block text-sm text-white/70 mb-2">
@@ -267,16 +311,25 @@ export default function ReferencesManager() {
                       <input
                         type="text"
                         value={formData.website}
-                        onChange={(e) =>
-                          setFormData({ ...formData, website: e.target.value })
-                        }
+                        onChange={(e) => {
+                          const updatedFormData = { ...formData, website: e.target.value };
+                          setFormData(updatedFormData);
+                          // brands array'ini de güncelle
+                          if (editingId) {
+                            setBrands((prevBrands) => 
+                              prevBrands.map((b) => 
+                                b.id === editingId ? { ...updatedFormData } : b
+                              )
+                            );
+                          }
+                        }}
                         className="w-full px-4 py-2 bg-white/5 border border-white/20 text-white rounded-lg"
                         placeholder="https://example.com"
                       />
                     </div>
                     <div className="space-y-2">
                       <div className="bg-green-500/20 border border-green-500/50 rounded-lg p-3 text-sm text-green-300">
-                        ✅ <strong>Bilgi:</strong> Logo yükledikten sonra otomatik olarak kaydedilir. Değişiklikleri kaydetmek için sayfanın üstündeki "Kaydet" butonuna basın.
+                        ✅ <strong>Bilgi:</strong> Tüm değişiklikler (logo dahil) otomatik olarak kaydedilir. Değişiklikleri kalıcı hale getirmek için sayfanın üstündeki "Kaydet" butonuna basın.
                       </div>
                       <div className="flex gap-4">
                         <button
