@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
+import { normalizeMediaUrl } from "@/lib/media";
 
 interface Video {
   id: string;
@@ -40,7 +41,7 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, onSelect, isVertical, isHo
         {video.thumbnail && (
           <div className="absolute inset-0 z-0">
             <Image
-              src={video.thumbnail}
+              src={normalizeMediaUrl(video.thumbnail)}
               alt={video.title}
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-105"
@@ -265,7 +266,7 @@ export default function VideoGallery({ videos, backgroundVideo }: VideoGalleryPr
           className="w-full h-full object-cover opacity-50"
           style={{ filter: "blur(2px)" }}
         >
-          <source src={backgroundVideo} type="video/mp4" />
+          <source src={normalizeMediaUrl(backgroundVideo)} type="video/mp4" />
         </video>
         <div className="absolute inset-0 bg-gradient-to-b from-[#232323]/70 via-[#232323]/50 to-[#232323]/70" />
       </div>
@@ -455,7 +456,7 @@ export default function VideoGallery({ videos, backgroundVideo }: VideoGalleryPr
                   ? "max-h-[85vh] sm:max-h-[85vh] object-contain"
                   : "max-h-[85vh] sm:max-h-[85vh] object-contain"
               }`}
-              src={selectedVideo.videoUrl}
+              src={normalizeMediaUrl(selectedVideo.videoUrl)}
               key={selectedVideo.id}
             >
               Tarayıcınız video oynatmayı desteklemiyor.

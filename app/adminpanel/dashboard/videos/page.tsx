@@ -14,6 +14,20 @@ interface Video {
   description: string;
 }
 
+const slugify = (value: string) =>
+  value
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .toLowerCase();
+
+const buildCustomName = (video: Video, type: "video" | "thumb") => {
+  const base = slugify(video.title || `video-${video.id}`);
+  const suffix = type === "thumb" ? "thumb" : "video";
+  return `${base}-${suffix}-${video.id}`;
+};
+
 export default function VideosManager() {
   const router = useRouter();
   const [videos, setVideos] = useState<Video[]>([]);
@@ -257,6 +271,8 @@ export default function VideosManager() {
                       <FileUpload
                         label="Kapak Fotoğrafı (Thumbnail)"
                         accept="image/*"
+                        folder="videos/thumbnails"
+                        customName={buildCustomName(formData, "thumb")}
                         currentFile={formData.thumbnail}
                         onUploadComplete={(url) => {
                           const updatedFormData = { ...formData, thumbnail: url };
@@ -289,6 +305,8 @@ export default function VideosManager() {
                       <FileUpload
                         label="Video Dosyası"
                         accept="video/*"
+                        folder="videos"
+                        customName={buildCustomName(formData, "video")}
                         currentFile={formData.videoUrl}
                         onUploadComplete={(url) => {
                           const updatedFormData = { ...formData, videoUrl: url };

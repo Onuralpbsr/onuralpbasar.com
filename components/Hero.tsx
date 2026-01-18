@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { normalizeMediaUrl } from "@/lib/media";
 
 interface HeroProps {
   backgroundVideo: string;
@@ -151,7 +152,7 @@ export default function Hero({ backgroundVideo }: HeroProps) {
             transition: "none", // Control opacity via JS, no CSS transition
           }}
         >
-          <source src={backgroundVideo} type="video/mp4" />
+          <source src={normalizeMediaUrl(backgroundVideo)} type="video/mp4" />
         </video>
         <div className="opaque" />
       </div>

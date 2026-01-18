@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { normalizeMediaUrl } from "@/lib/media";
 
 interface Service {
   id: string;
@@ -67,7 +68,7 @@ export default function Services({ services, backgroundVideo }: ServicesProps) {
           playsInline
           className="w-full h-full object-cover opacity-50"
         >
-          <source src={backgroundVideo} type="video/mp4" />
+          <source src={normalizeMediaUrl(backgroundVideo)} type="video/mp4" />
         </video>
         <div className="absolute inset-0 bg-gradient-to-b from-[#1a1a1a]/80 via-[#1a1a1a]/60 to-[#1a1a1a]/80" />
       </div>

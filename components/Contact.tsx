@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { normalizeMediaUrl } from "@/lib/media";
 
 interface ContactData {
   phone: string;
@@ -226,7 +227,7 @@ export default function Contact({ contactData, backgroundVideo }: ContactProps) 
             transition: "none", // Control opacity via JS, no CSS transition
           }}
         >
-          <source src={backgroundVideo} type="video/mp4" />
+          <source src={normalizeMediaUrl(backgroundVideo)} type="video/mp4" />
         </video>
         <div className="absolute inset-0 bg-gradient-to-b from-[#1a1a1a]/80 via-[#1a1a1a]/60 to-[#1a1a1a]/80" />
       </div>
