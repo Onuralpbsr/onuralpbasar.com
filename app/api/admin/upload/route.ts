@@ -5,6 +5,34 @@ import { existsSync } from "fs";
 import { requireAdminAuth } from "@/lib/auth";
 
 const publicDir = join(process.cwd(), "public");
+const MAX_VIDEO_BYTES = 500 * 1024 * 1024; // 500MB
+const MAX_IMAGE_BYTES = 20 * 1024 * 1024; // 20MB
+const ALLOWED_VIDEO_TYPES = new Set([
+  "video/mp4",
+  "video/quicktime",
+  "video/webm",
+  "video/x-matroska",
+]);
+const ALLOWED_IMAGE_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+]);
+
+const sanitizeBaseName = (value: string) =>
+  value
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9-_]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .toLowerCase();
+
+const sanitizeFolder = (value: string) =>
+  value
+    .replace(/[^a-zA-Z0-9/_-]+/g, "")
+    .replace(/^\/*/, "")
+    .replace(/\/+/g, "/")
+    .replace(/\.\.(\/|\\)/g, "");
 
 export async function POST(request: Request) {
   // Check authentication
@@ -36,19 +64,59 @@ export async function POST(request: Request) {
       );
     }
 
+    if (isVideo && !ALLOWED_VIDEO_TYPES.has(fileType)) {
+      return NextResponse.json(
+        { error: "Geçersiz video formatı. MP4, MOV, WEBM veya MKV yükleyin." },
+        { status: 400 }
+      );
+    }
+
+    if (isImage && !ALLOWED_IMAGE_TYPES.has(fileType)) {
+      return NextResponse.json(
+        { error: "Geçersiz görsel formatı. JPG, PNG veya WEBP yükleyin." },
+        { status: 400 }
+      );
+    }
+
+    if (isVideo && file.size > MAX_VIDEO_BYTES) {
+      return NextResponse.json(
+        { error: "Video dosyası çok büyük. Maksimum 500MB." },
+        { status: 413 }
+      );
+    }
+
+    if (isImage && file.size > MAX_IMAGE_BYTES) {
+      return NextResponse.json(
+        { error: "Görsel dosyası çok büyük. Maksimum 20MB." },
+        { status: 413 }
+      );
+    }
+
     // Dosya adını oluştur
     const timestamp = Date.now();
-    const originalName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
-    const extension = originalName.split(".").pop() || "";
+    const originalName = file.name;
+    const rawExtension = originalName.split(".").pop() || "";
+    const extension = rawExtension.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
     const baseName = originalName.replace(/\.[^/.]+$/, "");
-    const fileName = customName
-      ? `${customName}.${extension}`
-      : `${baseName}_${timestamp}.${extension}`;
+    const safeBaseName = sanitizeBaseName(baseName);
+    const safeCustomName = customName ? sanitizeBaseName(customName) : "";
+
+    if (!extension) {
+      return NextResponse.json(
+        { error: "Dosya uzantısı bulunamadı veya geçersiz." },
+        { status: 400 }
+      );
+    }
+
+    const fileName = safeCustomName
+      ? `${safeCustomName}.${extension}`
+      : `${safeBaseName || "dosya"}_${timestamp}.${extension}`;
 
     // Klasör yolu belirle
     let uploadPath = publicDir;
     if (folder) {
-      uploadPath = join(publicDir, folder);
+      const safeFolder = sanitizeFolder(folder);
+      uploadPath = join(publicDir, safeFolder);
       // Klasör yoksa oluştur
       if (!existsSync(uploadPath)) {
         await mkdir(uploadPath, { recursive: true });
@@ -64,7 +132,9 @@ export async function POST(request: Request) {
     await writeFile(filePath, buffer);
 
     // Public URL'yi oluştur
-    const publicUrl = folder ? `/${folder}/${fileName}` : `/${fileName}`;
+    const publicUrl = folder
+      ? `/${sanitizeFolder(folder)}/${fileName}`
+      : `/${fileName}`;
 
     return NextResponse.json({
       success: true,
