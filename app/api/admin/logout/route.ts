@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 
 export async function POST(request: Request) {
   const cookieStore = await cookies();
+  const cookieDomain = process.env.COOKIE_DOMAIN;
   
   // Cookie'yi silmek için aynı ayarlarla (secure, path, sameSite) silmeliyiz
   const protocol = request.headers.get("x-forwarded-proto") || 
@@ -18,6 +19,7 @@ export async function POST(request: Request) {
     sameSite: "lax",
     maxAge: 0, // Expire immediately
     path: "/",
+    ...(cookieDomain ? { domain: cookieDomain } : {}),
   });
 
   return NextResponse.json({ success: true });

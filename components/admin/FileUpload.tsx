@@ -83,6 +83,7 @@ export default function FileUpload({
       const uploadUrl = uploadBaseUrl
         ? `${uploadBaseUrl.replace(/\/+$/, "")}/api/admin/upload`
         : "/api/admin/upload";
+      xhr.withCredentials = true;
 
       // Upload progress event'i
       xhr.upload.addEventListener("progress", (e) => {

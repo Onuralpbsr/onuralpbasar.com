@@ -87,12 +87,14 @@ export async function POST(request: Request) {
       // Cloudflare HTTPS ile çalışıyorsa X-Forwarded-Proto: https olacaktır
       const isSecure = isHttps || isCloudflare;
       
+      const cookieDomain = process.env.COOKIE_DOMAIN;
       cookieStore.set("admin_auth", "authenticated", {
         httpOnly: true,
         secure: isSecure,
         sameSite: "lax",
         maxAge: 60 * 60 * 24 * 7, // 7 days
         path: "/",
+        ...(cookieDomain ? { domain: cookieDomain } : {}),
       });
 
       // Verify cookie was set
@@ -125,6 +127,7 @@ export async function POST(request: Request) {
         sameSite: "lax",
         maxAge: 60 * 60 * 24 * 7,
         path: "/",
+        ...(cookieDomain ? { domain: cookieDomain } : {}),
       });
 
       console.log("Response cookie headers:", response.headers.get("set-cookie"));

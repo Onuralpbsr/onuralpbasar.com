@@ -39,10 +39,48 @@ const sanitizeFolder = (value: string) =>
     .replace(/\/+/g, "/")
     .replace(/\.\.(\/|\\)/g, "");
 
+const buildCorsHeaders = (request: Request) => {
+  const origin = request.headers.get("origin");
+  const allowedOrigins = (process.env.UPLOAD_ALLOWED_ORIGINS || "")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+
+  const allowOrigin =
+    origin && (allowedOrigins.length === 0 || allowedOrigins.includes(origin))
+      ? origin
+      : allowedOrigins[0];
+
+  const headers: Record<string, string> = {};
+  if (allowOrigin) {
+    headers["Access-Control-Allow-Origin"] = allowOrigin;
+    headers["Vary"] = "Origin";
+    headers["Access-Control-Allow-Credentials"] = "true";
+    headers["Access-Control-Allow-Methods"] = "POST, OPTIONS";
+    headers["Access-Control-Allow-Headers"] = "Content-Type";
+  }
+
+  return headers;
+};
+
+export async function OPTIONS(request: Request) {
+  return new NextResponse(null, {
+    status: 204,
+    headers: buildCorsHeaders(request),
+  });
+}
+
 export async function POST(request: Request) {
+  const corsHeaders = buildCorsHeaders(request);
+
   // Check authentication
   const authError = await requireAdminAuth();
-  if (authError) return authError;
+  if (authError) {
+    Object.entries(corsHeaders).forEach(([key, value]) => {
+      authError.headers.set(key, value);
+    });
+    return authError;
+  }
 
   try {
     const formData = await request.formData();
@@ -53,7 +91,7 @@ export async function POST(request: Request) {
     if (!file) {
       return NextResponse.json(
         { error: "Dosya bulunamadı" },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -65,35 +103,35 @@ export async function POST(request: Request) {
     if (!isVideo && !isImage) {
       return NextResponse.json(
         { error: "Sadece video ve görsel dosyaları yüklenebilir" },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
     if (isVideo && !ALLOWED_VIDEO_TYPES.has(fileType)) {
       return NextResponse.json(
         { error: "Geçersiz video formatı. MP4, MOV, WEBM veya MKV yükleyin." },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
     if (isImage && !ALLOWED_IMAGE_TYPES.has(fileType)) {
       return NextResponse.json(
         { error: "Geçersiz görsel formatı. JPG, PNG veya WEBP yükleyin." },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
     if (MAX_VIDEO_BYTES && isVideo && file.size > MAX_VIDEO_BYTES) {
       return NextResponse.json(
         { error: `Video dosyası çok büyük. Maksimum ${MAX_VIDEO_MB}MB.` },
-        { status: 413 }
+        { status: 413, headers: corsHeaders }
       );
     }
 
     if (MAX_IMAGE_BYTES && isImage && file.size > MAX_IMAGE_BYTES) {
       return NextResponse.json(
         { error: `Görsel dosyası çok büyük. Maksimum ${MAX_IMAGE_MB}MB.` },
-        { status: 413 }
+        { status: 413, headers: corsHeaders }
       );
     }
 
@@ -109,7 +147,7 @@ export async function POST(request: Request) {
     if (!extension) {
       return NextResponse.json(
         { error: "Dosya uzantısı bulunamadı veya geçersiz." },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -166,7 +204,7 @@ export async function POST(request: Request) {
         await unlink(tempPath).catch(() => {});
         return NextResponse.json(
           { error: "Video sıkıştırma başarısız. Sunucuda ffmpeg kurulu mu?" },
-          { status: 500 }
+          { status: 500, headers: corsHeaders }
         );
       }
 
@@ -181,13 +219,16 @@ export async function POST(request: Request) {
       ? `/${sanitizeFolder(folder)}/${fileName}`
       : `/${fileName}`;
 
-    return NextResponse.json({
-      success: true,
-      url: publicUrl,
-      fileName: fileName,
-      size: file.size,
-      type: fileType,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        url: publicUrl,
+        fileName: fileName,
+        size: file.size,
+        type: fileType,
+      },
+      { headers: corsHeaders }
+    );
   } catch (error) {
     console.error("Upload error:", error);
     
@@ -217,7 +258,7 @@ export async function POST(request: Request) {
         error: errorMessage,
         details: process.env.NODE_ENV === "development" ? String(error) : undefined
       },
-      { status: statusCode }
+      { status: statusCode, headers: corsHeaders }
     );
   }
 }
