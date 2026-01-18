@@ -12,6 +12,12 @@ interface BackgroundVideos {
   contact: string;
 }
 
+const getCustomName = (value: string, fallback: string) => {
+  const fileName = value.split("/").pop() || "";
+  const baseName = fileName.replace(/\.[^/.]+$/, "");
+  return baseName || fallback;
+};
+
 export default function BackgroundsManager() {
   const router = useRouter();
   const [backgrounds, setBackgrounds] = useState<BackgroundVideos>({
@@ -166,6 +172,7 @@ export default function BackgroundsManager() {
                 label="Hero Section Video"
                 accept="video/*"
                 currentFile={backgrounds.hero}
+                customName={getCustomName(backgrounds.hero, "videographer")}
                 onUploadComplete={(url) =>
                   setBackgrounds({ ...backgrounds, hero: url })
                 }
@@ -189,6 +196,7 @@ export default function BackgroundsManager() {
                 label="Services Section Video"
                 accept="video/*"
                 currentFile={backgrounds.services}
+                customName={getCustomName(backgrounds.services, "videographer-2")}
                 onUploadComplete={(url) =>
                   setBackgrounds({ ...backgrounds, services: url })
                 }
@@ -212,6 +220,7 @@ export default function BackgroundsManager() {
                 label="Gallery Section Video"
                 accept="video/*"
                 currentFile={backgrounds.gallery}
+                customName={getCustomName(backgrounds.gallery, "editor")}
                 onUploadComplete={(url) =>
                   setBackgrounds({ ...backgrounds, gallery: url })
                 }
@@ -235,6 +244,7 @@ export default function BackgroundsManager() {
                 label="Contact Section Video"
                 accept="video/*"
                 currentFile={backgrounds.contact}
+                customName={getCustomName(backgrounds.contact, "natural-videographer")}
                 onUploadComplete={(url) =>
                   setBackgrounds({ ...backgrounds, contact: url })
                 }
