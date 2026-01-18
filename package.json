@@ -14,7 +14,8 @@
     "pm2:start": "pm2 start ecosystem.config.js",
     "pm2:restart": "pm2 restart portfolio",
     "pm2:stop": "pm2 stop portfolio",
-    "pm2:logs": "pm2 logs portfolio"
+    "pm2:logs": "pm2 logs portfolio",
+    "migrate:videos": "node scripts/migrate-videos-media.js"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
