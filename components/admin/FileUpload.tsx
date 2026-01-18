@@ -79,6 +79,10 @@ export default function FileUpload({
 
       // XMLHttpRequest kullanarak upload progress takibi
       const xhr = new XMLHttpRequest();
+      const uploadBaseUrl = process.env.NEXT_PUBLIC_UPLOAD_BASE_URL;
+      const uploadUrl = uploadBaseUrl
+        ? `${uploadBaseUrl.replace(/\/+$/, "")}/api/admin/upload`
+        : "/api/admin/upload";
 
       // Upload progress event'i
       xhr.upload.addEventListener("progress", (e) => {
@@ -137,7 +141,7 @@ export default function FileUpload({
           // Büyük dosyalar için timeout ayarla (5 dakika)
           xhr.timeout = 300000; // 5 dakika = 300000ms
           
-          xhr.open("POST", "/api/admin/upload");
+          xhr.open("POST", uploadUrl);
           xhr.send(formData);
         }
       );
