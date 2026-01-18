@@ -48,6 +48,29 @@ export default function VideosManager() {
     loadVideos();
   }, []);
 
+  const saveVideos = async (data: Video[]) => {
+    setSaving(true);
+    setMessage(null);
+
+    try {
+      const response = await fetch("/api/admin/content", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "videos", data }),
+      });
+
+      if (response.ok) {
+        setMessage({ type: "success", text: "Videolar başarıyla kaydedildi" });
+      } else {
+        setMessage({ type: "error", text: "Kaydetme başarısız" });
+      }
+    } catch (error) {
+      setMessage({ type: "error", text: "Bir hata oluştu" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const loadVideos = async () => {
     try {
       const response = await fetch("/api/admin/content?type=videos");
@@ -61,26 +84,7 @@ export default function VideosManager() {
   };
 
   const handleSave = async () => {
-    setSaving(true);
-    setMessage(null);
-
-    try {
-      const response = await fetch("/api/admin/content", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "videos", data: videos }),
-      });
-
-      if (response.ok) {
-        setMessage({ type: "success", text: "Videolar başarıyla kaydedildi" });
-      } else {
-        setMessage({ type: "error", text: "Kaydetme başarısız" });
-      }
-    } catch (error) {
-      setMessage({ type: "error", text: "Bir hata oluştu" });
-    } finally {
-      setSaving(false);
-    }
+    await saveVideos(videos);
   };
 
   const handleAdd = () => {
@@ -279,7 +283,11 @@ export default function VideosManager() {
                           setFormData(updatedFormData);
                           // Otomatik olarak videos array'ini de güncelle
                           if (editingId) {
-                            setVideos(videos.map((v) => (v.id === editingId ? updatedFormData : v)));
+                            const updatedVideos = videos.map((v) =>
+                              v.id === editingId ? updatedFormData : v
+                            );
+                            setVideos(updatedVideos);
+                            saveVideos(updatedVideos);
                           }
                         }}
                         description="Video için kapak fotoğrafı yükleyin (JPG, PNG)"
@@ -313,7 +321,11 @@ export default function VideosManager() {
                           setFormData(updatedFormData);
                           // Otomatik olarak videos array'ini de güncelle
                           if (editingId) {
-                            setVideos(videos.map((v) => (v.id === editingId ? updatedFormData : v)));
+                            const updatedVideos = videos.map((v) =>
+                              v.id === editingId ? updatedFormData : v
+                            );
+                            setVideos(updatedVideos);
+                            saveVideos(updatedVideos);
                           }
                         }}
                         description="Video dosyasını yükleyin (MP4, MOV, vb.)"

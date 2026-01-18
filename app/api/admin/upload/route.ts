@@ -1,12 +1,17 @@
 import { NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
+import { writeFile, mkdir, unlink } from "fs/promises";
 import { join } from "path";
 import { existsSync } from "fs";
 import { requireAdminAuth } from "@/lib/auth";
+import { execFile } from "child_process";
+import { promisify } from "util";
 
 const publicDir = join(process.cwd(), "public");
-const MAX_VIDEO_BYTES = 500 * 1024 * 1024; // 500MB
-const MAX_IMAGE_BYTES = 20 * 1024 * 1024; // 20MB
+const execFileAsync = promisify(execFile);
+const MAX_VIDEO_MB = Number(process.env.MAX_VIDEO_MB || "");
+const MAX_IMAGE_MB = Number(process.env.MAX_IMAGE_MB || "");
+const MAX_VIDEO_BYTES = Number.isFinite(MAX_VIDEO_MB) ? MAX_VIDEO_MB * 1024 * 1024 : null;
+const MAX_IMAGE_BYTES = Number.isFinite(MAX_IMAGE_MB) ? MAX_IMAGE_MB * 1024 * 1024 : null;
 const ALLOWED_VIDEO_TYPES = new Set([
   "video/mp4",
   "video/quicktime",
@@ -78,16 +83,16 @@ export async function POST(request: Request) {
       );
     }
 
-    if (isVideo && file.size > MAX_VIDEO_BYTES) {
+    if (MAX_VIDEO_BYTES && isVideo && file.size > MAX_VIDEO_BYTES) {
       return NextResponse.json(
-        { error: "Video dosyası çok büyük. Maksimum 500MB." },
+        { error: `Video dosyası çok büyük. Maksimum ${MAX_VIDEO_MB}MB.` },
         { status: 413 }
       );
     }
 
-    if (isImage && file.size > MAX_IMAGE_BYTES) {
+    if (MAX_IMAGE_BYTES && isImage && file.size > MAX_IMAGE_BYTES) {
       return NextResponse.json(
-        { error: "Görsel dosyası çok büyük. Maksimum 20MB." },
+        { error: `Görsel dosyası çok büyük. Maksimum ${MAX_IMAGE_MB}MB.` },
         { status: 413 }
       );
     }
@@ -108,9 +113,11 @@ export async function POST(request: Request) {
       );
     }
 
+    const shouldCompressVideo = isVideo && process.env.COMPRESS_VIDEOS === "true";
+    const outputExtension = shouldCompressVideo ? "mp4" : extension;
     const fileName = safeCustomName
-      ? `${safeCustomName}.${extension}`
-      : `${safeBaseName || "dosya"}_${timestamp}.${extension}`;
+      ? `${safeCustomName}.${outputExtension}`
+      : `${safeBaseName || "dosya"}_${timestamp}.${outputExtension}`;
 
     // Klasör yolu belirle
     let uploadPath = publicDir;
@@ -126,10 +133,48 @@ export async function POST(request: Request) {
     // Dosya yolunu oluştur
     const filePath = join(uploadPath, fileName);
 
-    // Dosyayı buffer'a çevir ve kaydet
+    // Dosyayı buffer'a çevir
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    await writeFile(filePath, buffer);
+
+    if (shouldCompressVideo) {
+      const tempPath = join(uploadPath, `${fileName}.upload`);
+      await writeFile(tempPath, buffer);
+
+      try {
+        await execFileAsync("ffmpeg", [
+          "-y",
+          "-i",
+          tempPath,
+          "-c:v",
+          "libx264",
+          "-preset",
+          "slow",
+          "-crf",
+          "20",
+          "-pix_fmt",
+          "yuv420p",
+          "-c:a",
+          "aac",
+          "-b:a",
+          "192k",
+          "-movflags",
+          "+faststart",
+          filePath,
+        ]);
+      } catch (ffmpegError) {
+        await unlink(tempPath).catch(() => {});
+        return NextResponse.json(
+          { error: "Video sıkıştırma başarısız. Sunucuda ffmpeg kurulu mu?" },
+          { status: 500 }
+        );
+      }
+
+      await unlink(tempPath).catch(() => {});
+    } else {
+      // Dosyayı kaydet
+      await writeFile(filePath, buffer);
+    }
 
     // Public URL'yi oluştur
     const publicUrl = folder
