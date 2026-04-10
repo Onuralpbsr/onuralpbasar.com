@@ -219,6 +219,9 @@ export async function POST(request: Request) {
       ? `/${sanitizeFolder(folder)}/${fileName}`
       : `/${fileName}`;
 
+    // PM2'yi non-blocking olarak restart et (Next.js public/ cache'ini yenilemek için)
+    execFileAsync("pm2", ["restart", "portfolio"]).catch(() => {});
+
     return NextResponse.json(
       {
         success: true,
