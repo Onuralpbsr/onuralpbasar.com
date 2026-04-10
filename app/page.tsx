@@ -48,7 +48,7 @@ export default async function Home() {
         contactData={contact}
         backgroundVideo={backgrounds.contact}
       />
-      <Footer />
+      <Footer contactData={contact} />
     </main>
   );
 }
