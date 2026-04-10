@@ -224,6 +224,18 @@ export default function Packages() {
           <span>* Reklam bütçeleri paket ücretine dahil değildir.</span>
           <span>Hizmet bölgeleri: Adana · Mersin · Gaziantep</span>
         </div>
+
+        {/* Fatura notu */}
+        <div className="mt-5 flex items-center justify-center gap-2.5">
+          <div className="h-px flex-1 max-w-24" style={{ background: "rgba(248,152,33,0.2)" }} />
+          <div className="flex items-center gap-2 px-4 py-2 rounded-full border text-xs font-medium" style={{ borderColor: "rgba(248,152,33,0.25)", color: "rgba(248,152,33,0.8)", background: "rgba(248,152,33,0.06)" }}>
+            <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Tüm hizmetlerimiz için e-arşiv fatura kesilmektedir.
+          </div>
+          <div className="h-px flex-1 max-w-24" style={{ background: "rgba(248,152,33,0.2)" }} />
+        </div>
       </div>
 
       {/* bottom fade */}

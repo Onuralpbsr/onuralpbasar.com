@@ -13,9 +13,9 @@ export default function Footer() {
           <Image
             src="/logo-dark-bg.svg"
             alt="ONR Dijital Medya Ajansı"
-            width={100}
-            height={60}
-            className="h-12 w-auto"
+            width={140}
+            height={84}
+            className="h-16 sm:h-20 w-auto"
           />
 
           {/* Telif */}

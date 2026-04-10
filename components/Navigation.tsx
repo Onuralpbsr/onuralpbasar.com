@@ -41,10 +41,10 @@ export default function Navigation() {
             <Image
               src="/logo-dark-bg.svg"
               alt="ONR Dijital Medya Ajansı"
-              width={90}
-              height={55}
+              width={120}
+              height={72}
               priority
-              className="h-10 sm:h-12 w-auto"
+              className="h-14 sm:h-16 w-auto"
             />
           </button>
           
