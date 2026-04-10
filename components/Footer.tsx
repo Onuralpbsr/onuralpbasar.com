@@ -18,9 +18,11 @@ interface FooterProps {
 export default function Footer({ contactData }: FooterProps) {
   return (
     <footer
-      className="border-t border-white/10 px-4 sm:px-6 pt-12 sm:pt-16 pb-8"
+      className="px-4 sm:px-6 pt-12 sm:pt-16 pb-8 relative"
       style={{ background: "#0a0a0a" }}
     >
+      {/* Turuncu ayırıcı çizgi */}
+      <div className="absolute top-0 left-0 right-0 h-px" style={{ background: "linear-gradient(to right, transparent, #f89821, transparent)" }} />
       <div className="max-w-7xl mx-auto">
 
         {/* Ana içerik */}
