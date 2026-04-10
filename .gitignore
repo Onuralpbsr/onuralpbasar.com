@@ -50,6 +50,10 @@ next-env.d.ts
 
 # Runtime content (managed via admin panel, not git)
 /content/submissions.json
+/content/backgroundVideos.json
+/content/brands.json
+/content/contact.json
+/content/videos.json
 
 # Uploaded media files (uploaded at runtime)
 /public/brands/
