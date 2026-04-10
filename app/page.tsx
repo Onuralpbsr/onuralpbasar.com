@@ -2,6 +2,7 @@ import Hero from "@/components/Hero";
 import VideoGallery from "@/components/VideoGallery";
 import References from "@/components/References";
 import Services from "@/components/Services";
+import Packages from "@/components/Packages";
 import Equipment from "@/components/Equipment";
 import Contact from "@/components/Contact";
 import Navigation from "@/components/Navigation";
@@ -37,6 +38,7 @@ export default async function Home() {
       <VideoGallery videos={videos} backgroundVideo={backgrounds.gallery} />
       <References brands={brands} />
       <Services services={services} backgroundVideo={backgrounds.services} />
+      <Packages />
       <Equipment
         equipment={equipment.items}
         categories={equipment.categories}

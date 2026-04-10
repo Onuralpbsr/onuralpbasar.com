@@ -9,8 +9,8 @@ const greatVibes = Great_Vibes({
 });
 
 export const metadata: Metadata = {
-  title: "Onuralp Başar | Video Prodüksiyon & Sosyal Medya Yönetimi",
-  description: "Video prodüksiyon, tanıtım ve reklam videoları, sosyal medya yönetimi hizmetleri. Profesyonel çekim ve montaj süreçleri",
+  title: "ONR Dijital Medya Ajansı | Video Prodüksiyon & Sosyal Medya Yönetimi",
+  description: "Adana, Mersin ve Gaziantep'te profesyonel video prodüksiyon, drone çekimi, sosyal medya yönetimi ve dijital pazarlama hizmetleri. ONR Dijital Medya Ajansı.",
 };
 
 export const viewport: Viewport = {

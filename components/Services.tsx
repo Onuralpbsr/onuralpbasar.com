@@ -89,7 +89,7 @@ export default function Services({ services, backgroundVideo }: ServicesProps) {
               className="group relative p-6 sm:p-8 bg-white/5 backdrop-blur-xl border border-white/20 hover:border-white/40 hover:bg-white/10 transition-all duration-300 rounded-lg sm:rounded-xl shadow-lg shadow-black/20 hover:shadow-xl hover:shadow-black/30 overflow-hidden"
             >
               {/* Decorative gradient line on the left */}
-              <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-white/0 via-white/40 to-white/0 group-hover:w-1.5 transition-all duration-300" />
+              <div className="absolute left-0 top-0 bottom-0 w-1 group-hover:w-1.5 transition-all duration-300" style={{ background: "linear-gradient(to bottom, transparent, #f89821, transparent)" }} />
               
               {/* Number badge */}
               <div className="absolute top-4 right-4 sm:top-6 sm:right-6 text-white/20 group-hover:text-white/40 transition-colors duration-300 font-medium text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-none">
@@ -99,7 +99,7 @@ export default function Services({ services, backgroundVideo }: ServicesProps) {
               {/* Title with decorative element */}
               <div className="relative z-10">
                 <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-                  <div className="w-1 h-5 sm:h-6 bg-gradient-to-b from-white/60 to-white/20 rounded-full group-hover:h-6 sm:group-hover:h-8 transition-all duration-300" />
+                  <div className="w-1 h-5 sm:h-6 rounded-full group-hover:h-6 sm:group-hover:h-8 transition-all duration-300" style={{ background: "linear-gradient(to bottom, #f89821, rgba(248,152,33,0.3))" }} />
                   <h3 className="text-xl sm:text-2xl font-medium tracking-wide text-white">
                     {service.title}
                   </h3>
@@ -109,8 +109,8 @@ export default function Services({ services, backgroundVideo }: ServicesProps) {
                 </p>
               </div>
 
-              {/* Hover effect - subtle glow */}
-              <div className="absolute inset-0 bg-gradient-to-br from-white/0 via-white/0 to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-xl" />
+              {/* Hover effect - subtle orange glow */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-xl" style={{ background: "linear-gradient(135deg, transparent, rgba(248,152,33,0.04))" }} />
             </div>
           ))}
         </div>

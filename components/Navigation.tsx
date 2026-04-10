@@ -34,10 +34,20 @@ export default function Navigation() {
         <div className="flex items-center justify-between">
           <button
             onClick={() => scrollToSection("hero")}
-            className="text-2xl sm:text-3xl text-white hover:text-gray-300 transition-colors"
-            style={{ fontFamily: "var(--font-signature), cursive" }}
+            className="flex flex-col leading-none hover:opacity-80"
           >
-            Onuralp Başar
+            <span
+              className="text-white text-lg sm:text-xl tracking-wider"
+              style={{ fontWeight: 900, fontStretch: "condensed", letterSpacing: "0.06em" }}
+            >
+              ONR DİJİTAL
+            </span>
+            <span
+              className="text-xs tracking-widest uppercase"
+              style={{ fontWeight: 700, fontStretch: "condensed", color: "#f89821", letterSpacing: "0.14em" }}
+            >
+              MEDYA AJANSI
+            </span>
           </button>
           
           {/* Desktop Menu */}
@@ -59,6 +69,13 @@ export default function Navigation() {
               className="text-sm font-normal tracking-wide text-white/80 hover:text-white transition-colors"
             >
               Hizmetler
+            </button>
+            <button
+              onClick={() => scrollToSection("packages")}
+              className="text-sm font-bold tracking-wide hover:opacity-80 transition-colors"
+              style={{ color: "#f89821" }}
+            >
+              Paketler
             </button>
             <button
               onClick={() => scrollToSection("equipment")}
@@ -124,6 +141,13 @@ export default function Navigation() {
               className="text-base font-normal tracking-wide text-white/80 hover:text-white transition-colors text-left py-2"
             >
               Hizmetler
+            </button>
+            <button
+              onClick={() => scrollToSection("packages")}
+              className="text-base font-bold tracking-wide text-left py-2 hover:opacity-80"
+              style={{ color: "#f89821" }}
+            >
+              Paketler
             </button>
             <button
               onClick={() => scrollToSection("equipment")}
