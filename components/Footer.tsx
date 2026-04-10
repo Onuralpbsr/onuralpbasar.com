@@ -36,7 +36,7 @@ export default function Footer({ contactData }: FooterProps) {
               className="h-16 sm:h-20 w-auto"
             />
             <p className="text-xs text-white/30 text-center sm:text-left leading-relaxed max-w-[180px]">
-              Strateji ve yaratıcılığın buluştuğu yer.
+              Markanızı birlikte büyütelim.
             </p>
           </div>
 
