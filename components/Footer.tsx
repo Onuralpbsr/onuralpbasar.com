@@ -7,29 +7,21 @@ export default function Footer() {
       style={{ background: "#0a0a0a" }}
     >
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-8">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
 
           {/* Logo */}
-          <div className="flex-shrink-0">
-            <Image
-              src="/logo-dark-bg.svg"
-              alt="ONR Dijital Medya Ajansı"
-              width={120}
-              height={72}
-              className="h-16 w-auto"
-            />
-          </div>
+          <Image
+            src="/logo-dark-bg.svg"
+            alt="ONR Dijital Medya Ajansı"
+            width={100}
+            height={60}
+            className="h-12 w-auto"
+          />
 
-          {/* İletişim */}
-          <div className="flex flex-col items-center md:items-start gap-2 text-sm text-white/50">
-            <a href="tel:+905050392886" className="hover:text-white transition-colors">
-              0505 039 28 86
-            </a>
-            <a href="mailto:info@onuralpbasar.com" className="hover:text-white transition-colors">
-              info@onuralpbasar.com
-            </a>
-            <span>Adana · Mersin · Gaziantep</span>
-          </div>
+          {/* Telif */}
+          <span className="text-xs text-white/25 text-center">
+            © {new Date().getFullYear()} ONR Dijital Medya Ajansı. Tüm hakları saklıdır.
+          </span>
 
           {/* Sosyal medya */}
           <div className="flex items-center gap-4">
@@ -56,12 +48,6 @@ export default function Footer() {
               </svg>
             </a>
           </div>
-        </div>
-
-        {/* Alt çizgi */}
-        <div className="mt-8 pt-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-white/25">
-          <span>© {new Date().getFullYear()} ONR Dijital Medya Ajansı. Tüm hakları saklıdır.</span>
-          <span>* Fiyatlara KDV dahil değildir.</span>
         </div>
       </div>
     </footer>
