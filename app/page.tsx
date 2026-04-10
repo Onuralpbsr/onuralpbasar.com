@@ -6,6 +6,7 @@ import Packages from "@/components/Packages";
 import Equipment from "@/components/Equipment";
 import Contact from "@/components/Contact";
 import Navigation from "@/components/Navigation";
+import Footer from "@/components/Footer";
 import AnimatedBackground from "@/components/AnimatedBackground";
 import {
   getVideos,
@@ -47,6 +48,7 @@ export default async function Home() {
         contactData={contact}
         backgroundVideo={backgrounds.contact}
       />
+      <Footer />
     </main>
   );
 }
