@@ -5,6 +5,15 @@
 
 set -e  # Hata durumunda dur
 
+# Deploy lock - eş zamanlı deploy'ları önle
+LOCK_FILE="/tmp/portfolio_deploy.lock"
+if [ -f "$LOCK_FILE" ]; then
+    echo "Deploy zaten çalışıyor (lock dosyası mevcut), atlanıyor..."
+    exit 0
+fi
+touch "$LOCK_FILE"
+trap "rm -f $LOCK_FILE" EXIT
+
 # Renkli output için
 RED='\033[0;31m'
 GREEN='\033[0;32m'
