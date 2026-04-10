@@ -145,11 +145,11 @@ export default function Hero({ backgroundVideo }: HeroProps) {
           autoPlay
           muted
           playsInline
-          className="w-full h-full object-cover"
+          preload="metadata"
+          className="w-full h-full object-cover hero-video"
           style={{
-            opacity: videoOpacity * 0.85, // Base opacity 85% + fade effect
-            filter: "blur(3px)", // Increased blur effect
-            transition: "none", // Control opacity via JS, no CSS transition
+            opacity: videoOpacity * 0.85,
+            transition: "none",
           }}
         >
           <source src={normalizeMediaUrl(backgroundVideo)} type="video/mp4" />

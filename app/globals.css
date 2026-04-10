@@ -185,6 +185,16 @@ body::after {
   }
 }
 
+/* Mobile: center content vertically in full-height hero */
+@media (max-width: 580px) {
+  .content {
+    padding-top: 0 !important;
+    min-height: 100vh;
+    width: 100% !important;
+    align-items: center;
+  }
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
@@ -284,13 +294,40 @@ body::after {
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
   }
-  
+
   /* Better text rendering on mobile */
   @media (max-width: 768px) {
     body {
       -webkit-text-size-adjust: 100%;
       text-size-adjust: 100%;
     }
+  }
+}
+
+/* Hero background video blur — overridden on mobile */
+.hero-video {
+  filter: blur(3px);
+}
+
+/* ─── Mobile Hero Fix ───────────────────────────────────────────────────
+   On desktop: .feature is position:fixed with padding-top:50% (aspect ratio).
+   At 1440px wide that gives ~720px height — nearly full viewport. Good.
+   On mobile: 375px × 50% = 187px — video only covers top 187px. Bad.
+   Fix: switch to position:absolute and fill the full hero section height.
+   Also remove blur (expensive on mobile GPU → choppy playback).
+──────────────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .feature {
+    position: absolute !important;
+    height: 100% !important;
+    padding-top: 0 !important;
+    will-change: auto !important;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+  }
+
+  .hero-video {
+    filter: none !important;
   }
 }
 
