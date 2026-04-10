@@ -48,3 +48,11 @@ next-env.d.ts
 *.log
 .pm2
 
+# Runtime content (managed via admin panel, not git)
+/content/submissions.json
+
+# Uploaded media files (uploaded at runtime)
+/public/brands/
+/public/videos/
+/public/backgrounds/
+
