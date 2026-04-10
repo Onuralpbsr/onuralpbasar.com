@@ -8,6 +8,7 @@ import Contact from "@/components/Contact";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import AnimatedBackground from "@/components/AnimatedBackground";
+import WhatsAppButton from "@/components/WhatsAppButton";
 import {
   getVideos,
   getBrands,
@@ -49,6 +50,7 @@ export default async function Home() {
         backgroundVideo={backgrounds.contact}
       />
       <Footer contactData={contact} />
+      <WhatsAppButton phone={contact.phone} />
     </main>
   );
 }

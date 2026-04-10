@@ -83,6 +83,7 @@ export default function VideoGallery({ videos, backgroundVideo }: VideoGalleryPr
     "all"
   );
   const videoRef = useRef<HTMLVideoElement>(null);
+  const touchStartXRef = useRef(0);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -329,46 +330,44 @@ export default function VideoGallery({ videos, backgroundVideo }: VideoGalleryPr
           </button>
         </div>
 
-        {/* Video Grid - Center Horizontal Layout with Equal Spacing */}
-        <div 
-          className="flex flex-col gap-4 sm:gap-6"
-        >
-          {/* Top Row - 4 Videos */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        {/* Video Grid */}
+        <div className="flex flex-col gap-3 sm:gap-6">
+          {/* Top Row - 4 Videos: 2 cols on mobile, 4 on desktop */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
             {arrangedVideos.slice(0, 4).map((video) => (
               <VideoCard key={video.id} video={video} onSelect={setSelectedVideo} />
             ))}
           </div>
 
-          {/* Center Row - Left Vertical + Horizontal + Right Vertical */}
+          {/* Center Row - mobile: horizontal full-width top, then 2 verticals side-by-side */}
           {arrangedVideos.length > 4 && (
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6 items-center">
-              {/* Left Vertical Video - 3 columns */}
+            <div className="grid grid-cols-2 md:grid-cols-12 gap-3 sm:gap-6 items-start">
+              {/* Left Vertical — order 2 on mobile, col 1-3 on desktop */}
               {arrangedVideos[4] && (
-                <div className="md:col-span-3 flex justify-center">
-                  <VideoCard video={arrangedVideos[4]} onSelect={setSelectedVideo} isVertical={true} />
+                <div className="col-span-1 md:col-span-3 order-2 md:order-1">
+                  <VideoCard video={arrangedVideos[4]} onSelect={setSelectedVideo} />
                 </div>
               )}
 
-              {/* Center Horizontal Video - 6 columns */}
+              {/* Center Horizontal — full width on mobile (order 1), col 4-9 on desktop */}
               {arrangedVideos[5] && (
-                <div className="md:col-span-6 flex justify-center">
-                  <VideoCard video={arrangedVideos[5]} onSelect={setSelectedVideo} isHorizontal={true} />
+                <div className="col-span-2 md:col-span-6 order-1 md:order-2">
+                  <VideoCard video={arrangedVideos[5]} onSelect={setSelectedVideo} />
                 </div>
               )}
 
-              {/* Right Vertical Video - 3 columns */}
+              {/* Right Vertical — order 3 on mobile, col 10-12 on desktop */}
               {arrangedVideos[6] && (
-                <div className="md:col-span-3 flex justify-center">
-                  <VideoCard video={arrangedVideos[6]} onSelect={setSelectedVideo} isVertical={true} />
+                <div className="col-span-1 md:col-span-3 order-3">
+                  <VideoCard video={arrangedVideos[6]} onSelect={setSelectedVideo} />
                 </div>
               )}
             </div>
           )}
 
-          {/* Bottom Row - 4 Videos */}
+          {/* Bottom Row - 4 Videos: 2 cols on mobile, 4 on desktop */}
           {arrangedVideos.length > 6 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
               {arrangedVideos.slice(7, 11).map((video) => (
                 <VideoCard key={video.id} video={video} onSelect={setSelectedVideo} />
               ))}
@@ -382,6 +381,11 @@ export default function VideoGallery({ videos, backgroundVideo }: VideoGalleryPr
         <div
           className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 md:p-6"
           onClick={() => setSelectedVideo(null)}
+          onTouchStart={(e) => { touchStartXRef.current = e.touches[0].clientX; }}
+          onTouchEnd={(e) => {
+            const diff = touchStartXRef.current - e.changedTouches[0].clientX;
+            if (Math.abs(diff) > 50) { diff > 0 ? goToNextVideo() : goToPrevVideo(); }
+          }}
         >
           <div
             className={`relative bg-white/5 backdrop-blur-xl border border-white/20 rounded-lg sm:rounded-xl p-2 sm:p-4 shadow-2xl shadow-black/50 w-full ${
@@ -391,76 +395,82 @@ export default function VideoGallery({ videos, backgroundVideo }: VideoGalleryPr
             }`}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Left Arrow Button */}
+            {/* Left Arrow — desktop only */}
             {filteredVideos.length > 1 && (
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  goToPrevVideo();
-                }}
-                className="absolute left-2 sm:left-0 sm:-translate-x-[120%] md:-translate-x-[150%] top-1/2 -translate-y-1/2 text-white hover:text-white/70 transition-colors bg-white/10 backdrop-blur-md border border-white/20 rounded-full w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 flex items-center justify-center hover:bg-white/20 z-50"
+                onClick={(e) => { e.stopPropagation(); goToPrevVideo(); }}
+                className="hidden sm:flex absolute sm:left-0 sm:-translate-x-[120%] md:-translate-x-[150%] top-1/2 -translate-y-1/2 text-white hover:text-white/70 bg-white/10 backdrop-blur-md border border-white/20 rounded-full w-12 h-12 md:w-14 md:h-14 items-center justify-center hover:bg-white/20 z-50"
                 aria-label="Önceki video"
               >
-                <svg
-                  className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 19l-7-7 7-7"
-                  />
+                <svg className="w-6 h-6 md:w-7 md:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
             )}
 
-            {/* Right Arrow Button */}
+            {/* Right Arrow — desktop only */}
             {filteredVideos.length > 1 && (
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  goToNextVideo();
-                }}
-                className="absolute right-2 sm:right-0 sm:translate-x-[120%] md:translate-x-[150%] top-1/2 -translate-y-1/2 text-white hover:text-white/70 transition-colors bg-white/10 backdrop-blur-md border border-white/20 rounded-full w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 flex items-center justify-center hover:bg-white/20 z-50"
+                onClick={(e) => { e.stopPropagation(); goToNextVideo(); }}
+                className="hidden sm:flex absolute sm:right-0 sm:translate-x-[120%] md:translate-x-[150%] top-1/2 -translate-y-1/2 text-white hover:text-white/70 bg-white/10 backdrop-blur-md border border-white/20 rounded-full w-12 h-12 md:w-14 md:h-14 items-center justify-center hover:bg-white/20 z-50"
                 aria-label="Sonraki video"
               >
-                <svg
-                  className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
+                <svg className="w-6 h-6 md:w-7 md:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </button>
             )}
+
+            {/* Close button */}
             <button
               onClick={() => setSelectedVideo(null)}
-              className="absolute -top-10 sm:-top-12 right-0 text-white text-xl sm:text-2xl hover:text-white/70 transition-colors bg-white/10 backdrop-blur-md border border-white/20 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center hover:bg-white/20 z-50"
+              className="absolute -top-10 sm:-top-12 right-0 text-white hover:text-white/70 bg-white/10 backdrop-blur-md border border-white/20 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center hover:bg-white/20 z-50 text-base sm:text-xl"
             >
               ✕
             </button>
+
+            {/* Video */}
             <video
               controls
               autoPlay
-              className={`w-full h-auto rounded-lg ${
-                selectedVideo.orientation === "vertical"
-                  ? "max-h-[85vh] sm:max-h-[85vh] object-contain"
-                  : "max-h-[85vh] sm:max-h-[85vh] object-contain"
-              }`}
+              className="w-full h-auto rounded-lg max-h-[80vh] sm:max-h-[85vh] object-contain"
               src={normalizeMediaUrl(selectedVideo.videoUrl)}
               key={selectedVideo.id}
             >
               Tarayıcınız video oynatmayı desteklemiyor.
             </video>
+
+            {/* Mobile nav — below video */}
+            {filteredVideos.length > 1 && (
+              <div className="flex sm:hidden gap-3 mt-3">
+                <button
+                  onClick={(e) => { e.stopPropagation(); goToPrevVideo(); }}
+                  className="flex-1 py-2.5 text-sm text-white/80 bg-white/8 border border-white/15 rounded-lg flex items-center justify-center gap-1.5"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                  Önceki
+                </button>
+                <span className="flex items-center text-xs text-white/30 px-1">
+                  {getCurrentVideoIndex() + 1}/{filteredVideos.length}
+                </span>
+                <button
+                  onClick={(e) => { e.stopPropagation(); goToNextVideo(); }}
+                  className="flex-1 py-2.5 text-sm text-white/80 bg-white/8 border border-white/15 rounded-lg flex items-center justify-center gap-1.5"
+                >
+                  Sonraki
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+            )}
+
+            {/* Swipe hint — mobile only, first time */}
+            <p className="sm:hidden text-center text-white/20 text-xs mt-2">
+              ← kaydırarak geçiş yapın →
+            </p>
           </div>
         </div>
       )}
