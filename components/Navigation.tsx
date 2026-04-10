@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 
 export default function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -34,20 +35,17 @@ export default function Navigation() {
         <div className="flex items-center justify-between">
           <button
             onClick={() => scrollToSection("hero")}
-            className="flex flex-col leading-none hover:opacity-80"
+            className="hover:opacity-80 flex items-center"
+            aria-label="ONR Dijital Medya Ajansı - Ana Sayfa"
           >
-            <span
-              className="text-white text-lg sm:text-xl tracking-wider"
-              style={{ fontWeight: 900, fontStretch: "condensed", letterSpacing: "0.06em" }}
-            >
-              ONR DİJİTAL
-            </span>
-            <span
-              className="text-xs tracking-widest uppercase"
-              style={{ fontWeight: 700, fontStretch: "condensed", color: "#f89821", letterSpacing: "0.14em" }}
-            >
-              MEDYA AJANSI
-            </span>
+            <Image
+              src="/logo-dark-bg.svg"
+              alt="ONR Dijital Medya Ajansı"
+              width={90}
+              height={55}
+              priority
+              className="h-10 sm:h-12 w-auto"
+            />
           </button>
           
           {/* Desktop Menu */}

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 220 1080 660">
+  <defs>
+    <style>
+      .st0 { fill: #0a0a0a; }
+      .st1 {
+        font-family: HelveticaNeue-CondensedBlack, 'Helvetica Neue';
+        font-size: 179.31px;
+        font-weight: 800;
+      }
+      .st2 { fill: #fff; }
+    </style>
+  </defs>
+  <text class="st1" transform="translate(0 369.65)">
+    <tspan class="st2"><tspan x="0" y="0">ONR</tspan></tspan>
+    <tspan class="st2"><tspan x="0" y="215.18">DİJİTAL</tspan></tspan>
+    <tspan class="st0"><tspan x="0" y="430.35">MEDYA AJANSI</tspan></tspan>
+  </text>
+</svg>

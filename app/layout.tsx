@@ -11,6 +11,15 @@ const greatVibes = Great_Vibes({
 export const metadata: Metadata = {
   title: "ONR Dijital Medya Ajansı | Video Prodüksiyon & Sosyal Medya Yönetimi",
   description: "Adana, Mersin ve Gaziantep'te profesyonel video prodüksiyon, drone çekimi, sosyal medya yönetimi ve dijital pazarlama hizmetleri. ONR Dijital Medya Ajansı.",
+  icons: {
+    icon: "/logo-dark-bg.svg",
+    shortcut: "/logo-dark-bg.svg",
+  },
+  openGraph: {
+    title: "ONR Dijital Medya Ajansı",
+    description: "Profesyonel video prodüksiyon, sosyal medya yönetimi ve dijital pazarlama.",
+    images: [{ url: "/logo-dark-bg.svg" }],
+  },
 };
 
 export const viewport: Viewport = {
