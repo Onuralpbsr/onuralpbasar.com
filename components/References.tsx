@@ -342,7 +342,7 @@ export default function References({ brands }: ReferencesProps) {
       id="references"
       className="py-12 sm:py-16 md:py-24 px-4 sm:px-6"
       style={{ 
-        background: "#1a1a1a",
+        background: "#111111",
         position: "relative",
         marginTop: "-1px",
       }}
@@ -351,7 +351,7 @@ export default function References({ brands }: ReferencesProps) {
       <div 
         className="absolute top-0 left-0 right-0 h-48 pointer-events-none"
         style={{
-          background: "linear-gradient(to bottom, #1a1a1a, transparent)",
+          background: "linear-gradient(to bottom, #111111, transparent)",
           opacity: 0.5,
         }}
       />
@@ -439,7 +439,7 @@ export default function References({ brands }: ReferencesProps) {
       <div 
         className="absolute bottom-0 left-0 right-0 h-48 z-10 pointer-events-none"
         style={{
-          background: "linear-gradient(to top, #1a1a1a 0%, rgba(26, 26, 26, 0.7) 40%, rgba(26, 26, 26, 0.3) 70%, transparent 100%)",
+          background: "linear-gradient(to top, #111111 0%, rgba(17, 17, 17, 0.7) 40%, rgba(17, 17, 17, 0.3) 70%, transparent 100%)",
         }}
       />
     </section>

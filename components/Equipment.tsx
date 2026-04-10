@@ -53,7 +53,7 @@ export default function Equipment({ equipment, categories }: EquipmentProps) {
       ref={sectionRef}
       id="equipment"
       className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 relative overflow-hidden"
-      style={{ background: "#1a1a1a" }}
+      style={{ background: "#111111" }}
     >
       <div className="max-w-7xl mx-auto relative z-10">
         <div
@@ -128,7 +128,7 @@ export default function Equipment({ equipment, categories }: EquipmentProps) {
       <div 
         className="absolute bottom-0 left-0 right-0 h-48 z-10 pointer-events-none"
         style={{
-          background: "linear-gradient(to top, #1a1a1a 0%, rgba(26, 26, 26, 0.7) 40%, rgba(26, 26, 26, 0.3) 70%, transparent 100%)",
+          background: "linear-gradient(to top, #111111 0%, rgba(26, 26, 26, 0.7) 40%, rgba(26, 26, 26, 0.3) 70%, transparent 100%)",
         }}
       />
     </section>

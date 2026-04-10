@@ -41,7 +41,7 @@ body, html {
 
 body {
   color: #fff;
-  background: #231f20;
+  background: #0a0a0a;
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
@@ -143,9 +143,9 @@ body::after {
   -moz-background-size: 250%;
   -o-background-size: 250%;
   background-size: 250%;
-  -webkit-box-shadow: 0 -200px 100px -80px #231f20 inset;
-  -moz-box-shadow: 0 -200px 100px -80px #231f20 inset;
-  box-shadow: 0 -200px 100px -80px #231f20 inset;
+  -webkit-box-shadow: 0 -200px 100px -80px #0a0a0a inset;
+  -moz-box-shadow: 0 -200px 100px -80px #0a0a0a inset;
+  box-shadow: 0 -200px 100px -80px #0a0a0a inset;
   will-change: filter, opacity;
 }
 

@@ -127,7 +127,7 @@ export default function Hero({ backgroundVideo }: HeroProps) {
       <div 
         className="absolute bottom-0 left-0 right-0 h-64 z-10 pointer-events-none"
         style={{
-          background: "linear-gradient(to bottom, transparent 0%, rgba(35, 35, 35, 0.3) 40%, rgba(35, 35, 35, 0.7) 70%, #232323 100%)",
+          background: "linear-gradient(to bottom, transparent 0%, rgba(10, 10, 10, 0.3) 40%, rgba(10, 10, 10, 0.7) 70%, #0a0a0a 100%)",
         }}
       />
       {/* Feature Background */}

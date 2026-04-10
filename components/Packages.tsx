@@ -74,14 +74,14 @@ export default function Packages() {
     <section
       id="packages"
       className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 relative overflow-hidden"
-      style={{ background: "#1a1a1a", marginTop: "-1px" }}
+      style={{ background: "#111111", marginTop: "-1px" }}
     >
       {/* top fade */}
       <div
         className="absolute top-0 left-0 right-0 h-32 z-10 pointer-events-none"
         style={{
           background:
-            "linear-gradient(to bottom, #1a1a1a 0%, transparent 100%)",
+            "linear-gradient(to bottom, #111111 0%, transparent 100%)",
         }}
       />
 
@@ -118,7 +118,7 @@ export default function Packages() {
               {pkg.popular && (
                 <div
                   className="text-center py-1.5 text-xs font-bold tracking-widest uppercase"
-                  style={{ background: "#f89821", color: "#231f20" }}
+                  style={{ background: "#f89821", color: "#0a0a0a" }}
                 >
                   POPÜLER
                 </div>
@@ -175,7 +175,7 @@ export default function Packages() {
                   className="w-full py-3 text-sm font-bold tracking-widest uppercase rounded-lg"
                   style={
                     pkg.popular
-                      ? { background: "#f89821", color: "#231f20" }
+                      ? { background: "#f89821", color: "#0a0a0a" }
                       : {
                           background: "transparent",
                           border: "1px solid rgba(255,255,255,0.2)",
@@ -230,7 +230,7 @@ export default function Packages() {
       <div
         className="absolute bottom-0 left-0 right-0 h-32 z-10 pointer-events-none"
         style={{
-          background: "linear-gradient(to top, #1a1a1a 0%, transparent 100%)",
+          background: "linear-gradient(to top, #111111 0%, transparent 100%)",
         }}
       />
     </section>

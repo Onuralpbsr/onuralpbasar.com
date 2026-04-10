@@ -202,7 +202,7 @@ export default function Contact({ contactData, backgroundVideo }: ContactProps) 
       id="contact"
       className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 relative overflow-hidden"
       style={{ 
-        background: "#1a1a1a",
+        background: "#111111",
         marginTop: "-1px", // Remove gap
       }}
     >
@@ -210,7 +210,7 @@ export default function Contact({ contactData, backgroundVideo }: ContactProps) 
       <div 
         className="absolute top-0 left-0 right-0 h-48 z-10 pointer-events-none"
         style={{
-          background: "linear-gradient(to bottom, #1a1a1a 0%, rgba(26, 26, 26, 0.7) 40%, rgba(26, 26, 26, 0.3) 70%, transparent 100%)",
+          background: "linear-gradient(to bottom, #111111 0%, rgba(17, 17, 17, 0.7) 40%, rgba(17, 17, 17, 0.3) 70%, transparent 100%)",
         }}
       />
       {/* Background Video */}
@@ -229,7 +229,7 @@ export default function Contact({ contactData, backgroundVideo }: ContactProps) 
         >
           <source src={normalizeMediaUrl(backgroundVideo)} type="video/mp4" />
         </video>
-        <div className="absolute inset-0 bg-gradient-to-b from-[#1a1a1a]/80 via-[#1a1a1a]/60 to-[#1a1a1a]/80" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#111111]/80 via-[#111111]/60 to-[#111111]/80" />
       </div>
       <div className="max-w-4xl mx-auto relative z-10">
         <div className="text-center mb-8 sm:mb-12 md:mb-16">

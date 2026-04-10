@@ -40,13 +40,13 @@ export default function AnimatedBackground() {
         radius: 200 + Math.random() * 300,
         speedX: (Math.random() - 0.5) * 0.3,
         speedY: (Math.random() - 0.5) * 0.3,
-        color: i === 0 
-          ? "rgba(184, 134, 11, 0.08)" 
-          : i === 1 
-          ? "rgba(255, 215, 0, 0.06)"
+        color: i === 0
+          ? "rgba(248, 152, 33, 0.10)"
+          : i === 1
+          ? "rgba(248, 152, 33, 0.06)"
           : i === 2
-          ? "rgba(139, 69, 19, 0.05)"
-          : "rgba(120, 119, 198, 0.04)",
+          ? "rgba(200, 100, 0, 0.05)"
+          : "rgba(248, 152, 33, 0.03)",
       });
     }
 

@@ -251,7 +251,7 @@ export default function VideoGallery({ videos, backgroundVideo }: VideoGalleryPr
       id="videos"
       className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 relative overflow-hidden"
       style={{ 
-        background: "#232323",
+        background: "#0a0a0a",
         marginTop: "-1px",
       }}
     >
@@ -268,21 +268,21 @@ export default function VideoGallery({ videos, backgroundVideo }: VideoGalleryPr
         >
           <source src={normalizeMediaUrl(backgroundVideo)} type="video/mp4" />
         </video>
-        <div className="absolute inset-0 bg-gradient-to-b from-[#232323]/70 via-[#232323]/50 to-[#232323]/70" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a]/70 via-[#0a0a0a]/50 to-[#0a0a0a]/70" />
       </div>
 
       {/* Smooth top fade from Hero section */}
       <div 
         className="absolute top-0 left-0 right-0 h-48 pointer-events-none z-10"
         style={{
-          background: "linear-gradient(to bottom, #232323 0%, rgba(35, 35, 35, 0.7) 40%, rgba(35, 35, 35, 0.3) 70%, transparent 100%)",
+          background: "linear-gradient(to bottom, #0a0a0a 0%, rgba(10, 10, 10, 0.7) 40%, rgba(10, 10, 10, 0.3) 70%, transparent 100%)",
         }}
       />
       {/* Smooth bottom fade to References section */}
       <div 
         className="absolute bottom-0 left-0 right-0 h-48 pointer-events-none z-10"
         style={{
-          background: "linear-gradient(to top, #1a1a1a 0%, rgba(26, 26, 26, 0.7) 40%, rgba(26, 26, 26, 0.3) 70%, transparent 100%)",
+          background: "linear-gradient(to top, #111111 0%, rgba(17, 17, 17, 0.7) 40%, rgba(17, 17, 17, 0.3) 70%, transparent 100%)",
         }}
       />
       <div className="max-w-7xl mx-auto relative z-10">
