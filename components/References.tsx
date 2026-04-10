@@ -340,73 +340,128 @@ export default function References({ brands }: ReferencesProps) {
   return (
     <section
       id="references"
-      className="py-12 sm:py-16 md:py-24 px-4 sm:px-6"
-      style={{ 
+      className="py-12 sm:py-16 md:py-24"
+      style={{
         background: "#111111",
         position: "relative",
         marginTop: "-1px",
       }}
     >
       {/* Smooth top fade from Videos section */}
-      <div 
+      <div
         className="absolute top-0 left-0 right-0 h-48 pointer-events-none"
         style={{
           background: "linear-gradient(to bottom, #111111, transparent)",
           opacity: 0.5,
         }}
       />
-      <div className="max-w-7xl mx-auto">
+
+      {/* Header */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-8 sm:mb-12 md:mb-16">
           <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-medium tracking-wider mb-3 sm:mb-4 text-white">
             Referanslar
           </h2>
-          <p className="text-white/70 font-normal text-base sm:text-lg max-w-2xl mx-auto px-2">
-            Hizmet verdiğim markalar ve iş ortaklarım
+          <p className="text-white/50 font-normal text-base sm:text-lg max-w-2xl mx-auto px-2">
+            Birlikte çalıştığımız markalar
           </p>
-        </div>
+          {/* Orange divider */}
+          <div className="mt-4 mx-auto w-12 h-0.5" style={{ background: "#f89821" }} />
 
-        {/* Scrolling Carousel */}
-        <div className="overflow-hidden">
-          <div
-            ref={scrollContainerRef}
-            className="flex gap-4 sm:gap-6 md:gap-8 lg:gap-12 hide-scrollbar cursor-grab active:cursor-grabbing"
-            style={{
-              scrollBehavior: "auto",
-              overflowX: "auto",
-              WebkitOverflowScrolling: "touch",
-            }}
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseLeave}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-          >
-            {/* Duplicate brands for seamless loop */}
-            {[...brands, ...brands].map((brand, index) => {
-              const itemStyle = getItemStyle(index);
-              return (
+          {/* Stats row */}
+          <div className="mt-6 flex items-center justify-center gap-6 sm:gap-10">
+            <div className="flex flex-col items-center gap-0.5">
+              <span className="text-2xl sm:text-3xl font-bold text-white">{brands.length}+</span>
+              <span className="text-xs text-white/40 tracking-widest uppercase">Marka</span>
+            </div>
+            <div className="w-px h-8" style={{ background: "rgba(248,152,33,0.3)" }} />
+            <div className="flex flex-col items-center gap-0.5">
+              <span className="text-2xl sm:text-3xl font-bold text-white">100+</span>
+              <span className="text-xs text-white/40 tracking-widest uppercase">Proje</span>
+            </div>
+            <div className="w-px h-8" style={{ background: "rgba(248,152,33,0.3)" }} />
+            <div className="flex flex-col items-center gap-0.5">
+              <span className="text-2xl sm:text-3xl font-bold" style={{ color: "#f89821" }}>%100</span>
+              <span className="text-xs text-white/40 tracking-widest uppercase">Memnuniyet</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Scrolling Carousel — full-width, no px padding so edge fades reach screen edges */}
+      <div className="relative">
+        {/* Left edge fade */}
+        <div
+          className="absolute left-0 top-0 bottom-0 w-16 sm:w-28 z-10 pointer-events-none"
+          style={{ background: "linear-gradient(to right, #111111, transparent)" }}
+        />
+        {/* Right edge fade */}
+        <div
+          className="absolute right-0 top-0 bottom-0 w-16 sm:w-28 z-10 pointer-events-none"
+          style={{ background: "linear-gradient(to left, #111111, transparent)" }}
+        />
+
+        <div
+          ref={scrollContainerRef}
+          className="flex gap-4 sm:gap-6 md:gap-8 hide-scrollbar cursor-grab active:cursor-grabbing px-4 sm:px-6"
+          style={{
+            scrollBehavior: "auto",
+            overflowX: "auto",
+            WebkitOverflowScrolling: "touch",
+          }}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseLeave}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
+          {/* Duplicate brands for seamless loop */}
+          {[...brands, ...brands].map((brand, index) => {
+            const itemStyle = getItemStyle(index);
+            return (
               <div
                 key={`${brand.id}-${index}`}
                 className="group flex flex-col items-center flex-shrink-0"
-                style={{ 
-                  minWidth: "240px",
-                  width: "240px",
+                style={{
+                  minWidth: "200px",
+                  width: "200px",
                   transform: itemStyle.transform,
                   opacity: itemStyle.opacity,
                   transition: itemStyle.transition,
                   transformOrigin: "center center",
                 }}
               >
-                <div 
-                  className="w-full aspect-square flex items-center justify-center p-2 sm:p-3 md:p-4 bg-white border border-gray-200 hover:border-gray-300 mb-2 sm:mb-3 rounded-2xl sm:rounded-3xl shadow-lg shadow-black/20 hover:shadow-xl hover:shadow-black/30 transition-all duration-300"
+                {/* Dark glass outer frame */}
+                <div
+                  className="w-full aspect-square mb-3 rounded-2xl p-2.5 transition-all duration-300"
+                  style={{
+                    background: "rgba(255,255,255,0.04)",
+                    border: "1px solid rgba(255,255,255,0.10)",
+                    boxShadow: "0 4px 24px rgba(0,0,0,0.3)",
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLDivElement).style.border = "1px solid rgba(248,152,33,0.35)";
+                    (e.currentTarget as HTMLDivElement).style.boxShadow = "0 4px 32px rgba(248,152,33,0.12)";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLDivElement).style.border = "1px solid rgba(255,255,255,0.10)";
+                    (e.currentTarget as HTMLDivElement).style.boxShadow = "0 4px 24px rgba(0,0,0,0.3)";
+                  }}
                 >
-                  <div className="relative w-full h-full flex items-center justify-center grayscale group-hover:grayscale-0 transition-all duration-300">
+                  {/* White inner logo stage — handles any logo type */}
+                  <div
+                    className="w-full h-full rounded-xl flex items-center justify-center p-3"
+                    style={{
+                      background: "rgba(255,255,255,0.95)",
+                    }}
+                  >
                     <img
                       src={brand.logo}
                       alt={brand.name}
-                      className="w-[90%] h-[90%] object-contain opacity-70 group-hover:opacity-100 transition-opacity duration-300"
+                      className="w-full h-full object-contain grayscale group-hover:grayscale-0 opacity-75 group-hover:opacity-100 transition-all duration-300"
+                      style={{ maxWidth: "85%", maxHeight: "85%" }}
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
                         target.style.display = "none";
@@ -414,29 +469,37 @@ export default function References({ brands }: ReferencesProps) {
                     />
                   </div>
                 </div>
+
+                {/* Brand name */}
                 {brand.website ? (
                   <a
                     href={brand.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-white/60 text-xs sm:text-sm md:text-base font-normal text-center hover:text-white/80 transition-colors duration-300 underline-offset-2 hover:underline px-2"
+                    className="text-white/50 text-xs sm:text-sm font-normal text-center hover:text-white/80 transition-colors duration-300 underline-offset-2 hover:underline px-2 leading-tight"
                   >
                     {brand.name}
                   </a>
                 ) : (
-                  <span className="text-white/60 text-xs sm:text-sm md:text-base font-normal text-center group-hover:text-white/80 transition-colors duration-300 px-2">
+                  <span className="text-white/50 text-xs sm:text-sm font-normal text-center group-hover:text-white/70 transition-colors duration-300 px-2 leading-tight">
                     {brand.name}
                   </span>
                 )}
               </div>
-              );
-            })}
-          </div>
+            );
+          })}
         </div>
       </div>
 
+      {/* Scroll hint */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <p className="text-center text-white/20 text-xs mt-6 tracking-widest uppercase">
+          ← sürükleyerek kaydırın →
+        </p>
+      </div>
+
       {/* Smooth bottom fade to Services section */}
-      <div 
+      <div
         className="absolute bottom-0 left-0 right-0 h-48 z-10 pointer-events-none"
         style={{
           background: "linear-gradient(to top, #111111 0%, rgba(17, 17, 17, 0.7) 40%, rgba(17, 17, 17, 0.3) 70%, transparent 100%)",
