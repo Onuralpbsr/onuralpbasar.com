@@ -69,6 +69,7 @@ export default function Services({ services, backgroundVideo }: ServicesProps) {
           loop
           muted
           playsInline
+          aria-hidden="true"
           className="w-full h-full object-cover opacity-50"
         >
           <source src={normalizeMediaUrl(backgroundVideo)} type="video/mp4" />

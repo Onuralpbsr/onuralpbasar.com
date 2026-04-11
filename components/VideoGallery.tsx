@@ -300,6 +300,7 @@ export default function VideoGallery({ videos, backgroundVideo }: VideoGalleryPr
         <div className="flex justify-center gap-2 sm:gap-4 mb-8 sm:mb-12 flex-wrap">
           <button
             onClick={() => setFilter("all")}
+            aria-pressed={filter === "all"}
             className={`px-4 sm:px-6 py-2 text-sm sm:text-base font-normal tracking-wide transition-all duration-300 backdrop-blur-md rounded ${
               filter === "all"
                 ? "border border-white/30 text-white bg-white/10 shadow-lg shadow-white/10"
@@ -310,6 +311,7 @@ export default function VideoGallery({ videos, backgroundVideo }: VideoGalleryPr
           </button>
           <button
             onClick={() => setFilter("horizontal")}
+            aria-pressed={filter === "horizontal"}
             className={`px-4 sm:px-6 py-2 text-sm sm:text-base font-normal tracking-wide transition-all duration-300 backdrop-blur-md rounded ${
               filter === "horizontal"
                 ? "border border-white/30 text-white bg-white/10 shadow-lg shadow-white/10"
@@ -320,6 +322,7 @@ export default function VideoGallery({ videos, backgroundVideo }: VideoGalleryPr
           </button>
           <button
             onClick={() => setFilter("vertical")}
+            aria-pressed={filter === "vertical"}
             className={`px-4 sm:px-6 py-2 text-sm sm:text-base font-normal tracking-wide transition-all duration-300 backdrop-blur-md rounded ${
               filter === "vertical"
                 ? "border border-white/30 text-white bg-white/10 shadow-lg shadow-white/10"

@@ -505,6 +505,7 @@ export default function References({ brands }: ReferencesProps) {
                     <img
                       src={brand.logo}
                       alt={brand.name}
+                      loading="lazy"
                       className="w-full h-full object-contain grayscale group-hover:grayscale-0 opacity-75 group-hover:opacity-100 transition-all duration-300"
                       style={{ maxWidth: "85%", maxHeight: "85%" }}
                       onError={(e) => {

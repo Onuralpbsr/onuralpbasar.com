@@ -83,6 +83,7 @@ export default function Equipment({ equipment, categories }: EquipmentProps) {
             <button
               key={category}
               onClick={() => setSelectedCategory(category)}
+              aria-pressed={selectedCategory === category}
               className={`px-4 sm:px-6 py-2 text-sm sm:text-base font-normal tracking-wide transition-all duration-300 rounded ${
                 selectedCategory === category
                   ? "border border-white/50 text-white bg-white/10"
