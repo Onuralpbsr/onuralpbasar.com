@@ -43,7 +43,6 @@ export default function Hero({ backgroundVideo }: HeroProps) {
     if (!video) return;
 
     const fadeOutDuration = 2; // Video sonunda 2 saniye fade out
-    const fadeInDuration = 2.5; // Video başında 2.5 saniye fade in
     let animationFrameId: number;
 
     const updateOpacity = () => {
@@ -59,15 +58,6 @@ export default function Hero({ backgroundVideo }: HeroProps) {
         if (currentTime >= duration - fadeOutDuration) {
           const fadeProgress = (duration - currentTime) / fadeOutDuration;
           newOpacity = Math.max(0, Math.min(1, fadeProgress));
-        }
-        // Video başlangıcında yumuşak fade in
-        else if (currentTime <= fadeInDuration) {
-          const fadeProgress = currentTime / fadeInDuration;
-          newOpacity = Math.max(0, Math.min(1, fadeProgress));
-        }
-        // Video ortasında tam opak
-        else {
-          newOpacity = 1;
         }
 
         setVideoOpacity(newOpacity);
@@ -120,7 +110,7 @@ export default function Hero({ backgroundVideo }: HeroProps) {
   return (
     <section
       id="hero"
-      className="relative overflow-hidden"
+      className="relative overflow-hidden flex items-center"
       style={{ minHeight: "100vh" }}
     >
       {/* Smooth transition gradient at bottom - subtle and clean */}

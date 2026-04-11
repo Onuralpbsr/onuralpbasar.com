@@ -295,13 +295,11 @@ body::after {
   }
 }
 
-/* Mobile: center content vertically in full-height hero */
+/* Mobile: remove top padding — hero section flex handles centering */
 @media (max-width: 580px) {
   .content {
     padding-top: 0 !important;
-    min-height: 100vh;
     width: 100% !important;
-    align-items: center;
   }
 }
 
