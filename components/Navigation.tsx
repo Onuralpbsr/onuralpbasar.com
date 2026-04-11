@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 
 export default function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -37,34 +38,14 @@ export default function Navigation() {
             className="hover:opacity-75 flex items-center"
             aria-label="ONR Dijital Medya Ajansı - Ana Sayfa"
           >
-            {/* CSS text logo — font-independent, scales on all devices */}
-            <div className="flex flex-col leading-none select-none" style={{ gap: "3px" }}>
-              <span
-                className="font-black tracking-tight text-white"
-                style={{
-                  fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
-                  fontWeight: 900,
-                  fontSize: "clamp(17px, 5vw, 22px)",
-                  letterSpacing: "-0.01em",
-                  lineHeight: 1,
-                }}
-              >
-                ONR DİJİTAL
-              </span>
-              <span
-                className="font-black"
-                style={{
-                  fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
-                  fontWeight: 900,
-                  fontSize: "clamp(8px, 2.3vw, 10px)",
-                  letterSpacing: "0.18em",
-                  color: "#f89821",
-                  lineHeight: 1,
-                }}
-              >
-                MEDYA AJANSI
-              </span>
-            </div>
+            <Image
+              src="/logo-dark-bg.svg"
+              alt="ONR Dijital Medya Ajansı"
+              width={120}
+              height={72}
+              className="h-10 sm:h-12 w-auto"
+              priority
+            />
           </button>
           
           {/* Desktop Menu */}
