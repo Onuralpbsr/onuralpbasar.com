@@ -1,6 +1,25 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useInView, useReveal } from "@/lib/useInView";
+
+/** Counts from 0 to target when active=true */
+function useCountUp(target: number, active: boolean, duration = 1400) {
+  const [value, setValue] = useState(0);
+  useEffect(() => {
+    if (!active) return;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const t = Math.min((now - start) / duration, 1);
+      const eased = 1 - (1 - t) ** 3; // ease-out cubic
+      setValue(Math.round(eased * target));
+      if (t < 1) requestAnimationFrame(tick);
+      else setValue(target);
+    };
+    requestAnimationFrame(tick);
+  }, [active, target, duration]);
+  return value;
+}
 
 interface Brand {
   id: string;
@@ -15,6 +34,12 @@ interface ReferencesProps {
 
 export default function References({ brands }: ReferencesProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const headerRef = useReveal(0.2);
+  const { ref: statsRef, isVisible: statsVisible } = useInView(0.3);
+
+  const brandCount = useCountUp(Math.max(brands.length, 1), statsVisible, 1200);
+  const projectCount = useCountUp(100, statsVisible, 1500);
+  const satisfactionCount = useCountUp(100, statsVisible, 1000);
   const [scrollPosition, setScrollPosition] = useState(0);
   const [isAutoScrolling, setIsAutoScrolling] = useState(true);
   const [isDragging, setIsDragging] = useState(false);
@@ -358,30 +383,50 @@ export default function References({ brands }: ReferencesProps) {
 
       {/* Header */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="text-center mb-8 sm:mb-12 md:mb-16">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-medium tracking-wider mb-3 sm:mb-4 text-white">
+        <div ref={headerRef} className="text-center mb-8 sm:mb-12 md:mb-16">
+          <h2
+            data-reveal
+            data-delay="0"
+            className="reveal text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-medium tracking-wider mb-3 sm:mb-4 text-white"
+          >
             Referanslar
           </h2>
-          <p className="text-white/50 font-normal text-base sm:text-lg max-w-2xl mx-auto px-2">
+          <p
+            data-reveal
+            data-delay="120"
+            className="reveal text-white/50 font-normal text-base sm:text-lg max-w-2xl mx-auto px-2"
+          >
             Birlikte çalıştığımız markalar
           </p>
-          {/* Orange divider */}
-          <div className="mt-4 mx-auto w-12 h-0.5" style={{ background: "#f89821" }} />
 
-          {/* Stats row */}
-          <div className="mt-6 flex items-center justify-center gap-6 sm:gap-10">
+          {/* Orange divider — grows from center */}
+          <div
+            data-reveal
+            data-delay="220"
+            className="reveal mt-4 mx-auto w-12 h-0.5"
+            style={{ background: "#f89821" }}
+          />
+
+          {/* Stats — count-up animation */}
+          <div ref={statsRef} className="mt-6 flex items-center justify-center gap-6 sm:gap-10">
             <div className="flex flex-col items-center gap-0.5">
-              <span className="text-2xl sm:text-3xl font-bold text-white">{brands.length}+</span>
+              <span className="text-2xl sm:text-3xl font-bold text-white tabular-nums">
+                {brandCount}+
+              </span>
               <span className="text-xs text-white/40 tracking-widest uppercase">Marka</span>
             </div>
             <div className="w-px h-8" style={{ background: "rgba(248,152,33,0.3)" }} />
             <div className="flex flex-col items-center gap-0.5">
-              <span className="text-2xl sm:text-3xl font-bold text-white">100+</span>
+              <span className="text-2xl sm:text-3xl font-bold text-white tabular-nums">
+                {projectCount}+
+              </span>
               <span className="text-xs text-white/40 tracking-widest uppercase">Proje</span>
             </div>
             <div className="w-px h-8" style={{ background: "rgba(248,152,33,0.3)" }} />
             <div className="flex flex-col items-center gap-0.5">
-              <span className="text-2xl sm:text-3xl font-bold" style={{ color: "#f89821" }}>%100</span>
+              <span className="text-2xl sm:text-3xl font-bold tabular-nums" style={{ color: "#f89821" }}>
+                %{satisfactionCount}
+              </span>
               <span className="text-xs text-white/40 tracking-widest uppercase">Memnuniyet</span>
             </div>
           </div>

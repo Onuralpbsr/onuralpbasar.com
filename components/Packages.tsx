@@ -1,5 +1,7 @@
 "use client";
 
+import { useReveal } from "@/lib/useInView";
+
 const packages = [
   {
     id: "baslangic",
@@ -69,6 +71,9 @@ export default function Packages() {
     const el = document.getElementById("contact");
     if (el) el.scrollIntoView({ behavior: "smooth" });
   };
+  const headerRef = useReveal(0.2);
+  const cardsRef = useReveal(0.08);
+  const extrasRef = useReveal(0.1);
 
   return (
     <section
@@ -87,23 +92,34 @@ export default function Packages() {
 
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
-        <div className="text-center mb-10 sm:mb-14 md:mb-20">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-wider mb-3 sm:mb-4 text-white uppercase">
+        <div ref={headerRef} className="text-center mb-10 sm:mb-14 md:mb-20">
+          <h2
+            data-reveal data-delay="0"
+            className="reveal text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-wider mb-3 sm:mb-4 text-white uppercase"
+          >
             Hizmet Paketleri
           </h2>
-          <p className="text-white/60 font-normal text-base sm:text-lg max-w-2xl mx-auto px-2">
+          <p
+            data-reveal data-delay="120"
+            className="reveal text-white/60 font-normal text-base sm:text-lg max-w-2xl mx-auto px-2"
+          >
             2026 · Markanızı birlikte büyütelim
           </p>
-          {/* orange divider */}
-          <div className="mt-5 mx-auto w-16 h-0.5" style={{ background: "#f89821" }} />
+          <div
+            data-reveal data-delay="220"
+            className="reveal mt-5 mx-auto w-16 h-0.5"
+            style={{ background: "#f89821" }}
+          />
         </div>
 
         {/* Package Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-12 sm:mb-16">
-          {packages.map((pkg) => (
+        <div ref={cardsRef} className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-12 sm:mb-16">
+          {packages.map((pkg, i) => (
             <div
               key={pkg.id}
-              className={`relative flex flex-col rounded-xl overflow-hidden ${
+              data-reveal
+              data-delay={i * 150}
+              className={`reveal-scale relative flex flex-col rounded-xl overflow-hidden ${
                 pkg.popular
                   ? "border-2 shadow-lg"
                   : "border border-white/15"
@@ -117,10 +133,10 @@ export default function Packages() {
               {/* Popular badge */}
               {pkg.popular && (
                 <div
-                  className="text-center py-1.5 text-xs font-bold tracking-widest uppercase"
+                  className="text-center py-1.5 text-xs font-bold tracking-widest uppercase pulse-orange"
                   style={{ background: "#f89821", color: "#0a0a0a" }}
                 >
-                  POPÜLER
+                  ✦ POPÜLER ✦
                 </div>
               )}
 
@@ -191,7 +207,7 @@ export default function Packages() {
         </div>
 
         {/* Extra Services */}
-        <div className="border border-white/10 rounded-xl overflow-hidden">
+        <div ref={extrasRef} className="border border-white/10 rounded-xl overflow-hidden">
           <div
             className="px-6 sm:px-8 py-4 border-b border-white/10"
             style={{ background: "rgba(248,152,33,0.08)" }}
@@ -207,7 +223,9 @@ export default function Packages() {
             {extras.map((item, i) => (
               <div
                 key={i}
-                className="flex items-center justify-between px-6 sm:px-8 py-3.5 hover:bg-white/5"
+                data-reveal
+                data-delay={i * 60}
+                className="reveal flex items-center justify-between px-4 sm:px-8 py-3.5 hover:bg-white/5"
               >
                 <span className="text-white/80 text-sm">{item.name}</span>
                 <span className="font-bold text-sm whitespace-nowrap ml-4" style={{ color: "#f89821" }}>

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { normalizeMediaUrl } from "@/lib/media";
+import { useReveal } from "@/lib/useInView";
 
 interface Service {
   id: string;
@@ -16,6 +17,8 @@ interface ServicesProps {
 
 export default function Services({ services, backgroundVideo }: ServicesProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const headerRef = useReveal(0.2);
+  const cardsRef = useReveal(0.1);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -73,20 +76,28 @@ export default function Services({ services, backgroundVideo }: ServicesProps) {
         <div className="absolute inset-0 bg-gradient-to-b from-[#111111]/80 via-[#111111]/60 to-[#111111]/80" />
       </div>
       <div className="max-w-7xl mx-auto relative z-10">
-        <div className="text-center mb-8 sm:mb-12 md:mb-16">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-medium tracking-wider mb-3 sm:mb-4 text-white">
+        <div ref={headerRef} className="text-center mb-8 sm:mb-12 md:mb-16">
+          <h2
+            data-reveal data-delay="0"
+            className="reveal text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-medium tracking-wider mb-3 sm:mb-4 text-white"
+          >
             Hizmetler
           </h2>
-          <p className="text-white/70 font-normal text-base sm:text-lg max-w-2xl mx-auto px-2">
+          <p
+            data-reveal data-delay="150"
+            className="reveal text-white/70 font-normal text-base sm:text-lg max-w-2xl mx-auto px-2"
+          >
             Sunduğum profesyonel hizmetler
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
+        <div ref={cardsRef} className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
           {services.map((service, index) => (
             <div
               key={service.id}
-              className="group relative p-6 sm:p-8 bg-white/5 backdrop-blur-xl border border-white/20 hover:border-white/40 hover:bg-white/10 transition-all duration-300 rounded-lg sm:rounded-xl shadow-lg shadow-black/20 hover:shadow-xl hover:shadow-black/30 overflow-hidden"
+              data-reveal
+              data-delay={index * 130}
+              className={`${index % 2 === 0 ? "reveal-left" : "reveal-right"} group relative p-6 sm:p-8 bg-white/5 backdrop-blur-xl border border-white/20 hover:border-white/40 hover:bg-white/10 rounded-lg sm:rounded-xl shadow-lg shadow-black/20 hover:shadow-xl hover:shadow-black/30 overflow-hidden`}
             >
               {/* Decorative gradient line on the left */}
               <div className="absolute left-0 top-0 bottom-0 w-1 group-hover:w-1.5 transition-all duration-300" style={{ background: "linear-gradient(to bottom, transparent, #f89821, transparent)" }} />

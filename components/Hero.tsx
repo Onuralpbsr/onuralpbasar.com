@@ -160,26 +160,30 @@ export default function Hero({ backgroundVideo }: HeroProps) {
       {/* Content */}
       <div className="content text-center">
         <div className="px-4 sm:px-6 max-w-4xl mx-auto w-full">
-        <h1 
-          className="text-5xl sm:text-6xl md:text-7xl lg:text-9xl mb-4 sm:mb-6 text-white"
-          style={{ fontFamily: "var(--font-signature), cursive" }}
-        >
-          Onuralp Başar
-        </h1>
-        <p className="text-lg sm:text-xl md:text-2xl font-normal text-white/90 mb-3 sm:mb-4 tracking-wide px-2">
-          Video Prodüksiyon & Sosyal Medya Yönetimi
-        </p>
-        <p className="text-sm sm:text-base md:text-lg text-white/70 font-normal max-w-2xl mx-auto leading-relaxed px-2">
-          İşletmelere tanıtım ve reklam videoları üretiyorum. Tüm çekim ve
-          montaj süreçlerini profesyonel bir şekilde yönetiyorum.
-        </p>
-          <div className="mt-8 sm:mt-12">
+          {/* Shimmer title — orange light sweeps through on loop */}
+          <h1
+            className="text-5xl sm:text-6xl md:text-7xl lg:text-9xl mb-4 sm:mb-6 text-shimmer animate-fade-up delay-100"
+            style={{ fontFamily: "var(--font-signature), cursive" }}
+          >
+            Onuralp Başar
+          </h1>
+
+          <p className="text-lg sm:text-xl md:text-2xl font-normal text-white/90 mb-3 sm:mb-4 tracking-wide px-2 animate-fade-up delay-300">
+            Video Prodüksiyon & Sosyal Medya Yönetimi
+          </p>
+
+          <p className="text-sm sm:text-base md:text-lg text-white/60 font-normal max-w-2xl mx-auto leading-relaxed px-2 animate-fade-up delay-400">
+            İşletmelere tanıtım ve reklam videoları üretiyorum. Tüm çekim ve
+            montaj süreçlerini profesyonel bir şekilde yönetiyorum.
+          </p>
+
+          <div className="mt-8 sm:mt-12 animate-fade-up delay-500">
             <button
-            onClick={() => {
-              const element = document.getElementById("videos");
-              element?.scrollIntoView({ behavior: "auto" });
-            }}
-              className="px-6 sm:px-8 py-2.5 sm:py-3 text-sm sm:text-base bg-white/10 backdrop-blur-md border border-white/30 text-white font-normal tracking-wide hover:bg-white/20 transition-all duration-300 shadow-lg shadow-white/10 rounded"
+              onClick={() => {
+                const element = document.getElementById("videos");
+                element?.scrollIntoView({ behavior: "auto" });
+              }}
+              className="px-8 sm:px-10 py-3 sm:py-3.5 text-sm sm:text-base bg-white/10 backdrop-blur-md border border-white/30 text-white font-normal tracking-widest uppercase hover:bg-white/20 rounded pulse-orange"
             >
               İşlerimi İncele
             </button>

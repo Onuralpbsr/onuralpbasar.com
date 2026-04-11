@@ -17,18 +17,127 @@ html {
   scroll-behavior: auto;
 }
 
-/* Disable all transitions and animations globally */
-*,
-*::before,
-*::after {
-  transition: none !important;
-  animation: none !important;
+/* ─── Default micro-interaction transitions ─────────────────────────────────
+   Smooth hover/focus on all interactive elements.
+   Video elements are excluded — those are JS-controlled.
+─────────────────────────────────────────────────────────────────────────── */
+button,
+a {
+  transition: opacity 0.18s ease, transform 0.18s ease,
+              box-shadow 0.22s ease, border-color 0.22s ease,
+              background-color 0.22s ease, color 0.2s ease;
 }
 
-/* Re-enable only essential transitions */
+/* Hero background: JS-controlled opacity/filter — use minimal CSS transition */
 .feature {
-  transition: filter 0.1s ease-out, opacity 0.1s ease-out !important;
+  transition: filter 0.1s ease-out, opacity 0.1s ease-out;
 }
+.feature video {
+  transition: none;
+}
+
+/* ─── Animation keyframes ───────────────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes scaleUp {
+  from { opacity: 0; transform: scale(0.94) translateY(10px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes slideLeft {
+  from { opacity: 0; transform: translateX(-36px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideRight {
+  from { opacity: 0; transform: translateX(36px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+@keyframes orangePulse {
+  0%, 100% { box-shadow: 0 0 0 0   rgba(248,152,33,0.5); }
+  60%       { box-shadow: 0 0 0 10px rgba(248,152,33,0); }
+}
+@keyframes progressGrow {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+@keyframes lineGrow {
+  from { width: 0; }
+  to   { width: 3rem; }
+}
+
+/* ─── Mount animations (Hero — plays immediately on load) ───────────────────── */
+.animate-fade-up  { animation: fadeUp  0.85s cubic-bezier(0.22,1,0.36,1) both; }
+.animate-fade-in  { animation: fadeIn  0.8s ease both; }
+.animate-scale-up { animation: scaleUp 0.75s cubic-bezier(0.22,1,0.36,1) both; }
+
+/* ─── Scroll-reveal base states ─────────────────────────────────────────────── */
+/* useReveal hook adds .revealed class when element enters viewport            */
+.reveal {
+  opacity: 0; transform: translateY(24px);
+  transition: opacity 0.75s cubic-bezier(0.22,1,0.36,1),
+              transform 0.75s cubic-bezier(0.22,1,0.36,1);
+}
+.reveal.revealed        { opacity: 1; transform: translateY(0); }
+
+.reveal-left {
+  opacity: 0; transform: translateX(-36px);
+  transition: opacity 0.75s cubic-bezier(0.22,1,0.36,1),
+              transform 0.75s cubic-bezier(0.22,1,0.36,1);
+}
+.reveal-left.revealed   { opacity: 1; transform: translateX(0); }
+
+.reveal-right {
+  opacity: 0; transform: translateX(36px);
+  transition: opacity 0.75s cubic-bezier(0.22,1,0.36,1),
+              transform 0.75s cubic-bezier(0.22,1,0.36,1);
+}
+.reveal-right.revealed  { opacity: 1; transform: translateX(0); }
+
+.reveal-scale {
+  opacity: 0; transform: scale(0.93);
+  transition: opacity 0.65s cubic-bezier(0.22,1,0.36,1),
+              transform 0.65s cubic-bezier(0.22,1,0.36,1);
+}
+.reveal-scale.revealed  { opacity: 1; transform: scale(1); }
+
+/* ─── Special effects ───────────────────────────────────────────────────────── */
+/* Hero title shimmer */
+.text-shimmer {
+  background: linear-gradient(90deg, #fff 20%, #f89821 50%, #fff 80%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 5s linear infinite;
+}
+
+/* CTA button orange pulse glow */
+.pulse-orange {
+  animation: orangePulse 2.5s ease-in-out infinite;
+}
+
+/* Section divider line grow */
+.line-grow {
+  animation: lineGrow 0.8s cubic-bezier(0.22,1,0.36,1) both;
+}
+
+/* ─── Stagger delay helpers ─────────────────────────────────────────────────── */
+.delay-0   { animation-delay:   0ms; }
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
+.delay-600 { animation-delay: 600ms; }
 
 * {
   box-sizing: border-box;
@@ -147,6 +256,7 @@ body::after {
   -moz-box-shadow: 0 -200px 100px -80px #0a0a0a inset;
   box-shadow: 0 -200px 100px -80px #0a0a0a inset;
   will-change: filter, opacity;
+  transition: filter 0.1s ease-out, opacity 0.1s ease-out;
 }
 
 .feature video {

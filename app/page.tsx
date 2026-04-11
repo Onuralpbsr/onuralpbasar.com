@@ -9,6 +9,7 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import AnimatedBackground from "@/components/AnimatedBackground";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import ScrollProgress from "@/components/ScrollProgress";
 import {
   getVideos,
   getBrands,
@@ -34,6 +35,7 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen relative">
+      <ScrollProgress />
       <AnimatedBackground />
       <Navigation />
       <Hero backgroundVideo={backgrounds.hero} />
