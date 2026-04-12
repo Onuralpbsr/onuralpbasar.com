@@ -144,6 +144,7 @@ export default function Hero({ backgroundVideo }: HeroProps) {
           muted
           playsInline
           preload="metadata"
+          poster="/hero-poster.webp"
           className="w-full h-full object-cover hero-video"
           style={{
             opacity: 0.85,

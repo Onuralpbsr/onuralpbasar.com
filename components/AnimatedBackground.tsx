@@ -106,7 +106,7 @@ export default function AnimatedBackground() {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 w-full h-full pointer-events-none z-0"
+      className="fixed inset-0 w-full h-full pointer-events-none z-0 hidden md:block"
       style={{ mixBlendMode: "screen" }}
     />
   );

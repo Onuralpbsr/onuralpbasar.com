@@ -436,6 +436,17 @@ body::after {
   filter: blur(3px);
 }
 
+/* ─── Mobile: ağır arka plan animasyonlarını kapat ──────────────────────
+   body::before (mesh gradient) ve body::after (grid) mobilde GPU'yu
+   yoruyor ve LCP'yi geciktiriyor. Mobilden tamamen kaldır.
+──────────────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  body::before,
+  body::after {
+    display: none;
+  }
+}
+
 /* ─── Mobile Hero Fix ───────────────────────────────────────────────────
    On desktop: .feature is position:fixed with padding-top:50% (aspect ratio).
    At 1440px wide that gives ~720px height — nearly full viewport. Good.
