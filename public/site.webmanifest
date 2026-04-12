@@ -1,0 +1,27 @@
+{
+  "name": "ONR Dijital Medya Ajansı",
+  "short_name": "ONR Dijital",
+  "description": "Video Prodüksiyon & Sosyal Medya Yönetimi",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#f89821",
+  "icons": [
+    {
+      "src": "/icon",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/apple-icon",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/logo-dark-bg.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

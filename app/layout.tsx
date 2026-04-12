@@ -37,10 +37,11 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: "/logo-dark-bg.svg",
-    shortcut: "/logo-dark-bg.svg",
-    apple: "/logo-dark-bg.svg",
+    icon: "/icon",
+    shortcut: "/icon",
+    apple: "/apple-icon",
   },
+  manifest: "/site.webmanifest",
   openGraph: {
     title: "ONR Dijital Medya Ajansı | Video Prodüksiyon & Sosyal Medya",
     description:
