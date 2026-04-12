@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Great_Vibes } from "next/font/google";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 
 const greatVibes = Great_Vibes({
@@ -147,6 +148,7 @@ export default function RootLayout({
         />
       </head>
       <body>{children}</body>
+      <GoogleAnalytics gaId="G-S7EDFEJQT0" />
     </html>
   );
 }
