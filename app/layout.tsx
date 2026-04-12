@@ -7,6 +7,7 @@ const greatVibes = Great_Vibes({
   weight: "400",
   subsets: ["latin"],
   variable: "--font-signature",
+  display: "swap",
 });
 
 export const metadata: Metadata = {

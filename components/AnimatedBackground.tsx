@@ -51,73 +51,54 @@ export default function AnimatedBackground() {
     }
 
     let time = 0;
+    let animationFrameId: number;
+    let frameCount = 0;
 
     const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      time += 0.01;
+      animationFrameId = requestAnimationFrame(animate);
 
-      blobs.forEach((blob, index) => {
-        // Update position with smooth movement
+      // 30fps throttle — her 2 frame'de 1 çiz (60fps yerine)
+      frameCount++;
+      if (frameCount % 2 !== 0) return;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      time += 0.008;
+
+      blobs.forEach((blob) => {
         blob.x += blob.speedX;
         blob.y += blob.speedY;
 
-        // Bounce off edges
-        if (blob.x < -blob.radius || blob.x > canvas.width + blob.radius) {
-          blob.speedX *= -1;
-        }
-        if (blob.y < -blob.radius || blob.y > canvas.height + blob.radius) {
-          blob.speedY *= -1;
-        }
+        if (blob.x < -blob.radius || blob.x > canvas.width + blob.radius) blob.speedX *= -1;
+        if (blob.y < -blob.radius || blob.y > canvas.height + blob.radius) blob.speedY *= -1;
 
-        // Keep within bounds
         blob.x = Math.max(-blob.radius, Math.min(canvas.width + blob.radius, blob.x));
         blob.y = Math.max(-blob.radius, Math.min(canvas.height + blob.radius, blob.y));
 
-        // Draw luxury blob with organic shape
+        // Organic blob shape
         ctx.beginPath();
-        const points = 8;
+        const points = 6; // 8'den 6'ya düşürüldü
         for (let i = 0; i < points; i++) {
           const angle = (i / points) * Math.PI * 2;
-          const radiusVariation = blob.radius + Math.sin(time + i) * 50;
+          const radiusVariation = blob.radius + Math.sin(time + i * 1.2) * 40;
           const x = blob.x + Math.cos(angle) * radiusVariation;
           const y = blob.y + Math.sin(angle) * radiusVariation;
-          
-          if (i === 0) {
-            ctx.moveTo(x, y);
-          } else {
-            ctx.lineTo(x, y);
-          }
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
         }
         ctx.closePath();
 
-        // Gradient fill
-        const gradient = ctx.createRadialGradient(
-          blob.x,
-          blob.y,
-          0,
-          blob.x,
-          blob.y,
-          blob.radius
-        );
+        const gradient = ctx.createRadialGradient(blob.x, blob.y, 0, blob.x, blob.y, blob.radius);
         gradient.addColorStop(0, blob.color);
         gradient.addColorStop(1, "transparent");
-
         ctx.fillStyle = gradient;
-        ctx.fill();
-
-        // Soft glow
-        ctx.shadowBlur = 30;
-        ctx.shadowColor = blob.color;
-        ctx.fill();
-        ctx.shadowBlur = 0;
+        ctx.fill(); // Tek fill — shadowBlur kaldırıldı (çok pahalı GPU op)
       });
-
-      requestAnimationFrame(animate);
     };
 
     animate();
 
     return () => {
+      cancelAnimationFrame(animationFrameId);
       window.removeEventListener("resize", setCanvasSize);
     };
   }, []);

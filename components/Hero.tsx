@@ -11,7 +11,8 @@ export default function Hero({ backgroundVideo }: HeroProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const featureRef = useRef<HTMLDivElement>(null);
   const [scrollY, setScrollY] = useState(0);
-  const [videoOpacity, setVideoOpacity] = useState(1);
+  // Opacity is applied directly to DOM — no React state to avoid 60fps re-renders
+  const opacityRef = useRef(1);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -60,7 +61,11 @@ export default function Hero({ backgroundVideo }: HeroProps) {
           newOpacity = Math.max(0, Math.min(1, fadeProgress));
         }
 
-        setVideoOpacity(newOpacity);
+        // DOM'a direkt yaz — React state güncellemesi yok, re-render yok
+        if (newOpacity !== opacityRef.current) {
+          opacityRef.current = newOpacity;
+          if (video) video.style.opacity = String(newOpacity * 0.85);
+        }
       }
 
       animationFrameId = requestAnimationFrame(updateOpacity);
@@ -80,14 +85,19 @@ export default function Hero({ backgroundVideo }: HeroProps) {
       }, 300); // 300ms siyah ekran
     };
 
-    // Start animation loop
-    animationFrameId = requestAnimationFrame(updateOpacity);
+    // Start animation loop only when video is playing
+    video.addEventListener("timeupdate", () => {
+      if (!animationFrameId) {
+        animationFrameId = requestAnimationFrame(updateOpacity);
+      }
+    });
 
     video.addEventListener("ended", handleEnded);
 
     return () => {
       if (animationFrameId) {
         cancelAnimationFrame(animationFrameId);
+        animationFrameId = 0;
       }
       video.removeEventListener("ended", handleEnded);
     };
@@ -138,7 +148,7 @@ export default function Hero({ backgroundVideo }: HeroProps) {
           preload="metadata"
           className="w-full h-full object-cover hero-video"
           style={{
-            opacity: videoOpacity * 0.85,
+            opacity: 0.85,
             transition: "none",
           }}
         >
