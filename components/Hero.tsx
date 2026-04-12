@@ -143,7 +143,7 @@ export default function Hero({ backgroundVideo }: HeroProps) {
           autoPlay
           muted
           playsInline
-          preload="metadata"
+          preload="none"
           poster="/hero-poster.webp"
           className="w-full h-full object-cover hero-video"
           style={{
@@ -167,7 +167,7 @@ export default function Hero({ backgroundVideo }: HeroProps) {
             Onuralp Başar
           </h1>
 
-          <p className="text-lg sm:text-xl md:text-2xl font-normal text-white/90 mb-3 sm:mb-4 tracking-wide px-2 animate-fade-up delay-300">
+          <p className="text-lg sm:text-xl md:text-2xl font-normal text-white/90 mb-3 sm:mb-4 tracking-wide px-2">
             Video Prodüksiyon & Sosyal Medya Yönetimi
           </p>
 
