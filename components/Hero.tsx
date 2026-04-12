@@ -72,17 +72,15 @@ export default function Hero({ backgroundVideo }: HeroProps) {
     };
 
     const handleEnded = () => {
-      // Video bittiğinde tamamen karart
-      setVideoOpacity(0);
-      
-      // Kısa bir bekleme sonrası video başa dönsün ve yavaşça açılsın
+      // Video bittiğinde direkt DOM'a yaz
+      if (video) video.style.opacity = "0";
+
       setTimeout(() => {
         if (video) {
           video.currentTime = 0;
-          // Video başa döndü, fade in başlayacak
           video.play().catch(() => {});
         }
-      }, 300); // 300ms siyah ekran
+      }, 300);
     };
 
     // Start animation loop only when video is playing
