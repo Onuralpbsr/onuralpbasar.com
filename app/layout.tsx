@@ -10,6 +10,7 @@ const greatVibes = Great_Vibes({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://onuralpbasar.com"),
   title: "ONR Dijital Medya Ajansı | Video Prodüksiyon & Sosyal Medya Yönetimi",
   description:
     "Adana, Mersin ve Gaziantep'te profesyonel video prodüksiyon, drone çekimi, sosyal medya yönetimi ve dijital pazarlama hizmetleri. ONR Dijital Medya Ajansı.",

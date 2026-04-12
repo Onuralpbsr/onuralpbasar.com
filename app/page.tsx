@@ -33,8 +33,37 @@ export default async function Home() {
       getBackgroundVideos(),
     ]);
 
+  const videoSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "ONR Dijital Medya Ajansı — Video Portföy",
+    description: "Profesyonel video prodüksiyon çalışmaları",
+    numberOfItems: videos.length,
+    itemListElement: videos.map((video: { id: string; title: string; description: string; thumbnail: string; videoUrl: string }, index: number) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      item: {
+        "@type": "VideoObject",
+        name: video.title,
+        description: video.description,
+        thumbnailUrl: `https://onuralpbasar.com${video.thumbnail}`,
+        contentUrl: `https://onuralpbasar.com${video.videoUrl}`,
+        uploadDate: "2024-01-01",
+        publisher: {
+          "@type": "Organization",
+          name: "ONR Dijital Medya Ajansı",
+          url: "https://onuralpbasar.com",
+        },
+      },
+    })),
+  };
+
   return (
     <main className="min-h-screen relative">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(videoSchema) }}
+      />
       <ScrollProgress />
       <AnimatedBackground />
       <Navigation />
