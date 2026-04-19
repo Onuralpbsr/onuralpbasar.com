@@ -24,8 +24,11 @@ export default function FileUpload({
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadSpeed, setUploadSpeed] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploadStartRef = useRef<number>(0);
+  const lastLoadedRef = useRef<number>(0);
 
   const handleDragEnter = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -66,6 +69,9 @@ export default function FileUpload({
     setIsUploading(true);
     setError(null);
     setUploadProgress(0);
+    setUploadSpeed("");
+    uploadStartRef.current = Date.now();
+    lastLoadedRef.current = 0;
 
     try {
       const formData = new FormData();
@@ -90,6 +96,21 @@ export default function FileUpload({
         if (e.lengthComputable) {
           const percentComplete = Math.round((e.loaded / e.total) * 100);
           setUploadProgress(percentComplete);
+
+          const elapsed = (Date.now() - uploadStartRef.current) / 1000;
+          if (elapsed > 1) {
+            const bytesPerSec = e.loaded / elapsed;
+            const remaining = (e.total - e.loaded) / bytesPerSec;
+            const speedStr =
+              bytesPerSec > 1024 * 1024
+                ? `${(bytesPerSec / 1024 / 1024).toFixed(1)} MB/s`
+                : `${(bytesPerSec / 1024).toFixed(0)} KB/s`;
+            const etaStr =
+              remaining > 60
+                ? `~${Math.ceil(remaining / 60)} dk kaldı`
+                : `~${Math.ceil(remaining)} sn kaldı`;
+            setUploadSpeed(`${speedStr} · ${etaStr}`);
+          }
         }
       });
 
@@ -136,11 +157,11 @@ export default function FileUpload({
           });
 
           xhr.addEventListener("timeout", () => {
-            reject(new Error("Yükleme zaman aşımına uğradı. Dosya çok büyük olabilir, lütfen daha küçük bir dosya deneyin."));
+            reject(new Error("Yükleme zaman aşımına uğradı. Lütfen internet bağlantınızı kontrol edip tekrar deneyin."));
           });
 
-          // Büyük dosyalar için timeout ayarla (5 dakika)
-          xhr.timeout = 300000; // 5 dakika = 300000ms
+          // 4K videolar için 90 dakika timeout
+          xhr.timeout = 5400000;
           
           xhr.open("POST", uploadUrl);
           xhr.send(formData);
@@ -213,7 +234,7 @@ export default function FileUpload({
               />
             </div>
             <div className="text-xs text-white/50 text-center">
-              {uploadProgress < 100 ? "Lütfen bekleyin..." : "Tamamlandı!"}
+              {uploadProgress < 100 ? (uploadSpeed || "Lütfen bekleyin...") : "Tamamlandı!"}
             </div>
           </div>
         ) : (

@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 import { writeFile, mkdir, unlink } from "fs/promises";
+import { createWriteStream } from "fs";
+import { pipeline } from "stream/promises";
+import { Readable } from "stream";
 import { join } from "path";
 import { existsSync } from "fs";
 import { requireAdminAuth } from "@/lib/auth";
@@ -171,13 +174,13 @@ export async function POST(request: Request) {
     // Dosya yolunu oluştur
     const filePath = join(uploadPath, fileName);
 
-    // Dosyayı buffer'a çevir
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
     if (shouldCompressVideo) {
       const tempPath = join(uploadPath, `${fileName}.upload`);
-      await writeFile(tempPath, buffer);
+      // Büyük dosyalar için streaming write (RAM'e yüklemeden diske yaz)
+      await pipeline(
+        Readable.fromWeb(file.stream() as import("stream/web").ReadableStream),
+        createWriteStream(tempPath)
+      );
 
       try {
         await execFileAsync("ffmpeg", [
@@ -210,8 +213,11 @@ export async function POST(request: Request) {
 
       await unlink(tempPath).catch(() => {});
     } else {
-      // Dosyayı kaydet
-      await writeFile(filePath, buffer);
+      // Büyük dosyalar için streaming write (RAM'e yüklemeden diske yaz)
+      await pipeline(
+        Readable.fromWeb(file.stream() as import("stream/web").ReadableStream),
+        createWriteStream(filePath)
+      );
     }
 
     // Public URL'yi oluştur
