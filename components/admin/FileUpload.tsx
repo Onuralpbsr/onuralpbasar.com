@@ -12,6 +12,9 @@ interface FileUploadProps {
   currentFile?: string;
 }
 
+// 49MB — Cloudflare'in 100MB limitinin altında güvenli chunk boyutu
+const CHUNK_SIZE = 49 * 1024 * 1024;
+
 export default function FileUpload({
   onUploadComplete,
   accept = "image/*,video/*",
@@ -24,11 +27,10 @@ export default function FileUpload({
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [uploadSpeed, setUploadSpeed] = useState<string>("");
+  const [uploadStatus, setUploadStatus] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const uploadStartRef = useRef<number>(0);
-  const lastLoadedRef = useRef<number>(0);
 
   const handleDragEnter = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -51,138 +53,194 @@ export default function FileUpload({
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
-
     const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      await uploadFile(files[0]);
-    }
+    if (files.length > 0) await uploadFile(files[0]);
   };
 
   const handleFileSelect = async (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (files && files.length > 0) {
-      await uploadFile(files[0]);
+    if (files && files.length > 0) await uploadFile(files[0]);
+  };
+
+  // Tek bir XHR isteği gönder (progress takipli)
+  const sendXHR = (
+    url: string,
+    formData: FormData,
+    onProgress?: (pct: number) => void
+  ): Promise<{ success: boolean; url?: string; error?: string; received?: number }> => {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.withCredentials = true;
+
+      if (onProgress) {
+        xhr.upload.addEventListener("progress", (e) => {
+          if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100));
+        });
+      }
+
+      xhr.addEventListener("load", () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            resolve(JSON.parse(xhr.responseText));
+          } catch {
+            reject(new Error("Geçersiz sunucu yanıtı"));
+          }
+        } else {
+          try {
+            const data = JSON.parse(xhr.responseText);
+            resolve({ success: false, error: data.error || "Yükleme başarısız" });
+          } catch {
+            resolve({ success: false, error: `Sunucu hatası (${xhr.status})` });
+          }
+        }
+      });
+
+      xhr.addEventListener("error", () =>
+        reject(new Error("Bağlantı hatası oluştu"))
+      );
+      xhr.addEventListener("abort", () =>
+        reject(new Error("Yükleme iptal edildi"))
+      );
+      xhr.addEventListener("timeout", () =>
+        reject(new Error("İstek zaman aşımına uğradı"))
+      );
+
+      // Her chunk için 10 dakika yeterli
+      xhr.timeout = 600000;
+      xhr.open("POST", url);
+      xhr.send(formData);
+    });
+  };
+
+  // Küçük dosyalar için normal upload
+  const uploadNormal = async (file: File, baseUrl: string): Promise<string> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    if (folder) formData.append("folder", folder);
+    if (customName) formData.append("customName", customName);
+
+    const uploadUrl = baseUrl ? `${baseUrl}/api/admin/upload` : "/api/admin/upload";
+
+    const result = await sendXHR(uploadUrl, formData, (pct) => {
+      setUploadProgress(pct);
+      const elapsed = (Date.now() - uploadStartRef.current) / 1000;
+      if (elapsed > 1) {
+        const bps = (file.size * pct / 100) / elapsed;
+        const remaining = (file.size * (1 - pct / 100)) / bps;
+        const speed =
+          bps > 1024 * 1024
+            ? `${(bps / 1024 / 1024).toFixed(1)} MB/s`
+            : `${(bps / 1024).toFixed(0)} KB/s`;
+        const eta =
+          remaining > 60
+            ? `~${Math.ceil(remaining / 60)} dk kaldı`
+            : `~${Math.ceil(remaining)} sn kaldı`;
+        setUploadStatus(`${speed} · ${eta}`);
+      }
+    });
+
+    if (!result.success || !result.url) throw new Error(result.error || "Yükleme başarısız");
+    return result.url;
+  };
+
+  // Büyük dosyalar için chunked upload (Cloudflare bypass)
+  const uploadInChunks = async (file: File, baseUrl: string): Promise<string> => {
+    const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+    const fileId = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+    const chunkUrl = baseUrl
+      ? `${baseUrl}/api/admin/upload-chunk`
+      : "/api/admin/upload-chunk";
+
+    for (let i = 0; i < totalChunks; i++) {
+      const start = i * CHUNK_SIZE;
+      const end = Math.min(start + CHUNK_SIZE, file.size);
+      const chunkBlob = file.slice(start, end);
+      const chunkFile = new File([chunkBlob], file.name, { type: file.type });
+
+      const chunkForm = new FormData();
+      chunkForm.append("chunk", chunkFile);
+      chunkForm.append("chunkIndex", String(i));
+      chunkForm.append("totalChunks", String(totalChunks));
+      chunkForm.append("fileId", fileId);
+      chunkForm.append("fileName", file.name);
+      if (folder) chunkForm.append("folder", folder);
+      if (customName) chunkForm.append("customName", customName);
+
+      setUploadStatus(
+        `Parça ${i + 1}/${totalChunks} yükleniyor...`
+      );
+
+      const result = await sendXHR(chunkUrl, chunkForm, (pct) => {
+        // Toplam ilerleme: tamamlanan parçalar + mevcut parçanın ilerlemesi
+        const overall = Math.round(
+          ((i + pct / 100) / totalChunks) * 100
+        );
+        setUploadProgress(overall);
+
+        const totalUploaded = start + (chunkBlob.size * pct) / 100;
+        const elapsed = (Date.now() - uploadStartRef.current) / 1000;
+        if (elapsed > 1) {
+          const bps = totalUploaded / elapsed;
+          const remaining = (file.size - totalUploaded) / bps;
+          const speed =
+            bps > 1024 * 1024
+              ? `${(bps / 1024 / 1024).toFixed(1)} MB/s`
+              : `${(bps / 1024).toFixed(0)} KB/s`;
+          const eta =
+            remaining > 60
+              ? `~${Math.ceil(remaining / 60)} dk kaldı`
+              : `~${Math.ceil(remaining)} sn kaldı`;
+          setUploadStatus(`Parça ${i + 1}/${totalChunks} · ${speed} · ${eta}`);
+        }
+      });
+
+      if (!result.success && i < totalChunks - 1) {
+        throw new Error(result.error || `Parça ${i + 1} yüklenemedi`);
+      }
+
+      // Son chunk'tan URL gelir
+      if (i === totalChunks - 1) {
+        if (!result.url) throw new Error(result.error || "Son parça birleştirilemedi");
+        return result.url;
+      }
     }
+
+    throw new Error("Beklenmedik hata");
   };
 
   const uploadFile = async (file: File) => {
     setIsUploading(true);
     setError(null);
     setUploadProgress(0);
-    setUploadSpeed("");
+    setUploadStatus("");
     uploadStartRef.current = Date.now();
-    lastLoadedRef.current = 0;
 
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      if (folder) {
-        formData.append("folder", folder);
-      }
-      if (customName) {
-        formData.append("customName", customName);
-      }
-
-      // XMLHttpRequest kullanarak upload progress takibi
-      const xhr = new XMLHttpRequest();
       const uploadBaseUrl = process.env.NEXT_PUBLIC_UPLOAD_BASE_URL;
-      const uploadUrl = uploadBaseUrl
-        ? `${uploadBaseUrl.replace(/\/+$/, "")}/api/admin/upload`
-        : "/api/admin/upload";
-      xhr.withCredentials = true;
+      const baseUrl = uploadBaseUrl ? uploadBaseUrl.replace(/\/+$/, "") : "";
 
-      // Upload progress event'i
-      xhr.upload.addEventListener("progress", (e) => {
-        if (e.lengthComputable) {
-          const percentComplete = Math.round((e.loaded / e.total) * 100);
-          setUploadProgress(percentComplete);
+      let url: string;
 
-          const elapsed = (Date.now() - uploadStartRef.current) / 1000;
-          if (elapsed > 1) {
-            const bytesPerSec = e.loaded / elapsed;
-            const remaining = (e.total - e.loaded) / bytesPerSec;
-            const speedStr =
-              bytesPerSec > 1024 * 1024
-                ? `${(bytesPerSec / 1024 / 1024).toFixed(1)} MB/s`
-                : `${(bytesPerSec / 1024).toFixed(0)} KB/s`;
-            const etaStr =
-              remaining > 60
-                ? `~${Math.ceil(remaining / 60)} dk kaldı`
-                : `~${Math.ceil(remaining)} sn kaldı`;
-            setUploadSpeed(`${speedStr} · ${etaStr}`);
-          }
-        }
-      });
-
-      // Promise wrapper
-      const response = await new Promise<{ success: boolean; url?: string; error?: string }>(
-        (resolve, reject) => {
-          xhr.addEventListener("load", () => {
-            if (xhr.status >= 200 && xhr.status < 300) {
-              try {
-                const data = JSON.parse(xhr.responseText);
-                resolve(data);
-              } catch {
-                reject(new Error("Geçersiz yanıt"));
-              }
-            } else {
-              // HTTP status koduna göre özel hata mesajları
-              let errorMessage = "Yükleme başarısız";
-              
-              if (xhr.status === 413) {
-                errorMessage = "Dosya çok büyük. Lütfen daha küçük bir dosya seçin veya sunucu limitlerini kontrol edin.";
-              } else if (xhr.status === 400) {
-                errorMessage = "Geçersiz dosya formatı veya eksik parametreler.";
-              } else if (xhr.status === 401 || xhr.status === 403) {
-                errorMessage = "Yetkilendirme hatası. Lütfen yeniden giriş yapın.";
-              } else if (xhr.status === 500) {
-                errorMessage = "Sunucu hatası. Lütfen daha sonra tekrar deneyin.";
-              }
-              
-              try {
-                const data = JSON.parse(xhr.responseText);
-                resolve({ success: false, error: data.error || errorMessage });
-              } catch {
-                resolve({ success: false, error: errorMessage });
-              }
-            }
-          });
-
-          xhr.addEventListener("error", () => {
-            reject(new Error("Ağ hatası oluştu. İnternet bağlantınızı kontrol edin."));
-          });
-
-          xhr.addEventListener("abort", () => {
-            reject(new Error("Yükleme iptal edildi"));
-          });
-
-          xhr.addEventListener("timeout", () => {
-            reject(new Error("Yükleme zaman aşımına uğradı. Lütfen internet bağlantınızı kontrol edip tekrar deneyin."));
-          });
-
-          // 4K videolar için 90 dakika timeout
-          xhr.timeout = 5400000;
-          
-          xhr.open("POST", uploadUrl);
-          xhr.send(formData);
-        }
-      );
-
-      if (response.success && response.url) {
-        onUploadComplete(response.url);
-        setUploadProgress(100);
+      if (file.size > CHUNK_SIZE) {
+        // 49MB üstü → parçalı upload (Cloudflare bypass)
+        url = await uploadInChunks(file, baseUrl);
       } else {
-        setError(response.error || "Yükleme başarısız");
+        // Normal upload
+        url = await uploadNormal(file, baseUrl);
       }
-    } catch (error) {
-      console.error("Upload error:", error);
-      const errorMessage = error instanceof Error ? error.message : "Dosya yüklenirken bir hata oluştu";
-      setError(errorMessage);
+
+      onUploadComplete(url);
+      setUploadProgress(100);
+      setUploadStatus("Tamamlandı!");
+    } catch (err) {
+      console.error("Upload error:", err);
+      setError(err instanceof Error ? err.message : "Dosya yüklenirken hata oluştu");
     } finally {
       setIsUploading(false);
       setTimeout(() => {
         setUploadProgress(0);
-      }, 1000);
+        setUploadStatus("");
+      }, 2000);
     }
   };
 
@@ -195,7 +253,7 @@ export default function FileUpload({
       {label && (
         <label className="block text-sm text-white/70 mb-2">{label}</label>
       )}
-      
+
       <div
         onDragEnter={handleDragEnter}
         onDragOver={handleDragOver}
@@ -205,11 +263,7 @@ export default function FileUpload({
         className={`
           relative border-2 border-dashed rounded-lg p-6 text-center cursor-pointer
           transition-all duration-200
-          ${
-            isDragging
-              ? "border-blue-500 bg-blue-500/10"
-              : "border-white/20 hover:border-white/40 bg-white/5"
-          }
+          ${isDragging ? "border-blue-500 bg-blue-500/10" : "border-white/20 hover:border-white/40 bg-white/5"}
           ${isUploading ? "opacity-50 cursor-not-allowed" : ""}
         `}
       >
@@ -234,7 +288,7 @@ export default function FileUpload({
               />
             </div>
             <div className="text-xs text-white/50 text-center">
-              {uploadProgress < 100 ? (uploadSpeed || "Lütfen bekleyin...") : "Tamamlandı!"}
+              {uploadStatus || "Lütfen bekleyin..."}
             </div>
           </div>
         ) : (
@@ -258,9 +312,9 @@ export default function FileUpload({
             </div>
             <div className="text-xs text-white/50">
               {accept.includes("video") && accept.includes("image")
-                ? "Video veya görsel dosyaları"
+                ? "Video veya görsel dosyaları (her boyut desteklenir)"
                 : accept.includes("video")
-                ? "Video dosyaları"
+                ? "Video dosyaları (her boyut desteklenir)"
                 : "Görsel dosyaları"}
             </div>
           </div>
@@ -293,4 +347,3 @@ export default function FileUpload({
     </div>
   );
 }
-
