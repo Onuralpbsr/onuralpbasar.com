@@ -12,6 +12,31 @@ const execFileAsync = promisify(execFile);
 const publicDir = join(process.cwd(), "public");
 const tmpDir = join(process.cwd(), "tmp-chunks");
 
+const buildCorsHeaders = (request: Request) => {
+  const origin = request.headers.get("origin");
+  const allowedOrigins = (process.env.UPLOAD_ALLOWED_ORIGINS || "")
+    .split(",")
+    .map((v) => v.trim())
+    .filter(Boolean);
+
+  const allowOrigin =
+    origin && (allowedOrigins.length === 0 || allowedOrigins.includes(origin))
+      ? origin
+      : allowedOrigins[0] ?? "*";
+
+  return {
+    "Access-Control-Allow-Origin": allowOrigin,
+    "Access-Control-Allow-Credentials": "true",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+    Vary: "Origin",
+  };
+};
+
+export async function OPTIONS(request: Request) {
+  return new NextResponse(null, { status: 204, headers: buildCorsHeaders(request) });
+}
+
 export const runtime = "nodejs";
 export const maxDuration = 300;
 
@@ -31,8 +56,13 @@ const sanitizeFolder = (value: string) =>
     .replace(/\.\.(\/|\\)/g, "");
 
 export async function POST(request: Request) {
+  const corsHeaders = buildCorsHeaders(request);
+
   const authError = await requireAdminAuth();
-  if (authError) return authError;
+  if (authError) {
+    Object.entries(corsHeaders).forEach(([k, v]) => authError.headers.set(k, v));
+    return authError;
+  }
 
   try {
     const formData = await request.formData();
@@ -45,7 +75,7 @@ export async function POST(request: Request) {
     const customName = formData.get("customName") as string | null;
 
     if (!chunk || isNaN(chunkIndex) || isNaN(totalChunks) || !fileId || !originalName) {
-      return NextResponse.json({ error: "Eksik parametreler" }, { status: 400 });
+      return NextResponse.json({ error: "Eksik parametreler" }, { status: 400, headers: corsHeaders });
     }
 
     // Temp dir for this file upload session
@@ -61,7 +91,7 @@ export async function POST(request: Request) {
 
     // Not the last chunk — just acknowledge
     if (chunkIndex < totalChunks - 1) {
-      return NextResponse.json({ success: true, received: chunkIndex });
+      return NextResponse.json({ success: true, received: chunkIndex }, { headers: corsHeaders });
     }
 
     // Last chunk received — assemble all chunks into final file
@@ -95,12 +125,12 @@ export async function POST(request: Request) {
     execFileAsync("pm2", ["restart", "portfolio"]).catch(() => {});
 
     const publicUrl = safeFolder ? `/${safeFolder}/${fileName}` : `/${fileName}`;
-    return NextResponse.json({ success: true, url: publicUrl, fileName });
+    return NextResponse.json({ success: true, url: publicUrl, fileName }, { headers: corsHeaders });
   } catch (error) {
     console.error("Chunk upload error:", error);
     return NextResponse.json(
       { error: "Chunk yüklenirken hata oluştu: " + String(error) },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }
