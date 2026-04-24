@@ -12,8 +12,9 @@ interface FileUploadProps {
   currentFile?: string;
 }
 
-// 49MB — Cloudflare'in 100MB limitinin altında güvenli chunk boyutu
-const CHUNK_SIZE = 49 * 1024 * 1024;
+// 10MB — yavaş bağlantılarda (~300 KB/s) her chunk ~35 saniyede biter
+const CHUNK_SIZE = 10 * 1024 * 1024;
+const MAX_RETRIES = 3;
 
 export default function FileUpload({
   onUploadComplete,
@@ -170,7 +171,15 @@ export default function FileUpload({
         `Parça ${i + 1}/${totalChunks} yükleniyor...`
       );
 
-      const result = await sendXHR(chunkUrl, chunkForm, (pct) => {
+      // Başarısız chunk'larda otomatik yeniden dene
+    let result: { success: boolean; url?: string; error?: string; received?: number } | null = null;
+    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+      try {
+        if (attempt > 0) {
+          setUploadStatus(`Parça ${i + 1}/${totalChunks} yeniden deneniyor (${attempt + 1}/${MAX_RETRIES})...`);
+          await new Promise((r) => setTimeout(r, 2000 * attempt));
+        }
+        result = await sendXHR(chunkUrl, chunkForm, (pct) => {
         // Toplam ilerleme: tamamlanan parçalar + mevcut parçanın ilerlemesi
         const overall = Math.round(
           ((i + pct / 100) / totalChunks) * 100
@@ -193,17 +202,24 @@ export default function FileUpload({
           setUploadStatus(`Parça ${i + 1}/${totalChunks} · ${speed} · ${eta}`);
         }
       });
-
-      if (!result.success && i < totalChunks - 1) {
-        throw new Error(result.error || `Parça ${i + 1} yüklenemedi`);
-      }
-
-      // Son chunk'tan URL gelir
-      if (i === totalChunks - 1) {
-        if (!result.url) throw new Error(result.error || "Son parça birleştirilemedi");
-        return result.url;
+        break; // başarılı, döngüden çık
+      } catch (err) {
+        if (attempt === MAX_RETRIES - 1) throw err;
       }
     }
+
+    if (!result) throw new Error(`Parça ${i + 1} yüklenemedi`);
+
+    if (!result.success && i < totalChunks - 1) {
+      throw new Error(result.error || `Parça ${i + 1} yüklenemedi`);
+    }
+
+    // Son chunk'tan URL gelir
+    if (i === totalChunks - 1) {
+      if (!result.url) throw new Error(result.error || "Son parça birleştirilemedi");
+      return result.url;
+    }
+  }
 
     throw new Error("Beklenmedik hata");
   };
