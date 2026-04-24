@@ -216,17 +216,15 @@ export default function FileUpload({
     uploadStartRef.current = Date.now();
 
     try {
-      const uploadBaseUrl = process.env.NEXT_PUBLIC_UPLOAD_BASE_URL;
-      const baseUrl = uploadBaseUrl ? uploadBaseUrl.replace(/\/+$/, "") : "";
-
       let url: string;
 
       if (file.size > CHUNK_SIZE) {
-        // 49MB üstü → parçalı upload (Cloudflare bypass)
-        url = await uploadInChunks(file, baseUrl);
+        // 49MB üstü → parçalı upload, her chunk Cloudflare limitinin altında
+        // Her zaman same-origin kullan (CORS sorunu yok)
+        url = await uploadInChunks(file, "");
       } else {
-        // Normal upload
-        url = await uploadNormal(file, baseUrl);
+        // Normal upload — same-origin
+        url = await uploadNormal(file, "");
       }
 
       onUploadComplete(url);
