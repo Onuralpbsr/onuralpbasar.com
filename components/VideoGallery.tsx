@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import { normalizeMediaUrl } from "@/lib/media";
 
@@ -11,6 +11,8 @@ interface Video {
   videoUrl: string;
   orientation: "horizontal" | "vertical";
   description?: string;
+  client?: string;
+  cinematic?: boolean;
 }
 
 interface VideoGalleryProps {
@@ -18,466 +20,449 @@ interface VideoGalleryProps {
   backgroundVideo: string;
 }
 
-// Video Card Component
-interface VideoCardProps {
-  video: Video;
-  onSelect: (video: Video) => void;
-  isVertical?: boolean;
-  isHorizontal?: boolean;
-}
+// ─────────────────────────────────────────
+// Play icon
+// ─────────────────────────────────────────
+const PlayIcon = ({ size = 20 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="currentColor">
+    <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+  </svg>
+);
 
-const VideoCard: React.FC<VideoCardProps> = ({ video, onSelect, isVertical, isHorizontal }) => {
-  return (
+// ─────────────────────────────────────────
+// Sinematik öne çıkan video kartı
+// ─────────────────────────────────────────
+const CinematicCard = ({
+  video,
+  isActive,
+  onClick,
+}: {
+  video: Video;
+  isActive: boolean;
+  onClick: () => void;
+}) => (
+  <button
+    onClick={onClick}
+    className={`relative flex-shrink-0 rounded overflow-hidden transition-all duration-300 focus:outline-none ${
+      isActive
+        ? "ring-2 ring-white/60 opacity-100"
+        : "opacity-50 hover:opacity-80"
+    }`}
+    style={{ width: 120, height: 68 }}
+  >
+    {video.thumbnail ? (
+      <Image
+        src={normalizeMediaUrl(video.thumbnail)}
+        alt={video.title}
+        fill
+        className="object-cover"
+        sizes="120px"
+      />
+    ) : (
+      <div className="w-full h-full bg-white/10" />
+    )}
+    <div className="absolute inset-0 bg-black/20" />
+  </button>
+);
+
+// ─────────────────────────────────────────
+// Portfolio video kartı
+// ─────────────────────────────────────────
+const VideoCard = ({
+  video,
+  onSelect,
+}: {
+  video: Video;
+  onSelect: (v: Video) => void;
+}) => (
+  <div
+    className="group relative cursor-pointer overflow-hidden rounded-xl bg-white/5 border border-white/10 hover:border-white/30 transition-all duration-300 shadow-lg hover:shadow-2xl hover:shadow-black/40 hover:-translate-y-1"
+    onClick={() => onSelect(video)}
+  >
     <div
-      className="group relative cursor-pointer overflow-hidden bg-white/5 backdrop-blur-xl border border-white/20 hover:border-white/40 hover:bg-white/10 transition-all duration-300 shadow-lg shadow-black/20 hover:shadow-xl hover:shadow-black/30 rounded-lg"
-      onClick={() => onSelect(video)}
+      className={`relative w-full ${
+        video.orientation === "vertical" ? "aspect-[9/16]" : "aspect-video"
+      }`}
     >
-      <div
-        className={`w-full h-full relative ${
-          video.orientation === "vertical" ? "aspect-[3/4]" : "aspect-video"
-        }`}
-      >
-        {/* Thumbnail Image */}
-        {video.thumbnail && (
-          <div className="absolute inset-0 z-0">
-            <Image
-              src={normalizeMediaUrl(video.thumbnail)}
-              alt={video.title}
-              fill
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            />
-          </div>
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10" />
-        <div className="absolute inset-0 flex items-center justify-center z-20">
-          <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:bg-white/30 transition-all duration-300">
-            <svg
-              className="w-6 h-6 md:w-8 md:h-8 text-white ml-1"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
-            </svg>
-          </div>
-        </div>
-        <div className="absolute bottom-2 left-2 right-2 md:bottom-4 md:left-4 md:right-4 z-20">
-          <h3 className="text-white font-normal text-sm md:text-base mb-1 line-clamp-2">
-            {video.title}
-          </h3>
-          {video.description && (
-            <p className="text-white/70 text-xs md:text-sm font-normal line-clamp-1">
-              {video.description}
-            </p>
-          )}
+      {video.thumbnail ? (
+        <Image
+          src={normalizeMediaUrl(video.thumbnail)}
+          alt={video.title}
+          fill
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          sizes="(max-width: 768px) 50vw, 25vw"
+        />
+      ) : (
+        <div className="w-full h-full bg-white/10" />
+      )}
+      {/* Gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+
+      {/* Play button */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:scale-110">
+          <PlayIcon size={18} />
         </div>
       </div>
+
+      {/* Bottom info */}
+      <div className="absolute bottom-0 left-0 right-0 p-3">
+        <h3 className="text-white text-sm font-medium line-clamp-2 leading-snug">
+          {video.title}
+        </h3>
+        {video.description && (
+          <p className="text-white/50 text-xs mt-0.5 line-clamp-1">
+            {video.description}
+          </p>
+        )}
+      </div>
     </div>
-  );
-};
+  </div>
+);
 
-
+// ─────────────────────────────────────────
+// Ana bileşen
+// ─────────────────────────────────────────
 export default function VideoGallery({ videos, backgroundVideo }: VideoGalleryProps) {
+  const cinematicVideos = videos.filter((v) => v.cinematic);
+  const portfolioVideos = videos.filter((v) => !v.cinematic);
+
+  // Unique clients
+  const clients = ["Tümü", ...Array.from(new Set(portfolioVideos.map((v) => v.client).filter(Boolean) as string[]))];
+
+  const [activeClient, setActiveClient] = useState("Tümü");
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
-  const [filter, setFilter] = useState<"all" | "horizontal" | "vertical">(
-    "all"
-  );
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const [activeCinemaIndex, setActiveCinemaIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  const bgVideoRef = useRef<HTMLVideoElement>(null);
   const touchStartXRef = useRef(0);
 
+  // Background video play/pause via IntersectionObserver
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && videoRef.current) {
-            videoRef.current.play().catch(() => {});
-          } else if (videoRef.current) {
-            videoRef.current.pause();
-          }
-        });
+    const el = bgVideoRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) el.play().catch(() => {});
+        else el.pause();
       },
-      { threshold: 0.5 }
+      { threshold: 0.3 }
     );
-
-    if (videoRef.current) {
-      observer.observe(videoRef.current);
-    }
-
-    return () => {
-      if (videoRef.current) {
-        observer.unobserve(videoRef.current);
-      }
-    };
+    obs.observe(el);
+    return () => obs.disconnect();
   }, []);
 
-  const filteredVideos =
-    filter === "all"
-      ? videos
-      : videos.filter((video) => video.orientation === filter);
+  // Filtered portfolio videos
+  const filtered =
+    activeClient === "Tümü"
+      ? portfolioVideos
+      : portfolioVideos.filter((v) => v.client === activeClient);
 
-  // Layout algorithm: 4 top + center section (left vertical + center horizontal + right vertical) + 4 bottom
-  const arrangeVideosWithCenterHorizontal = (videos: Video[]) => {
-    const vertical = videos.filter(v => v.orientation === "vertical");
-    const horizontal = videos.filter(v => v.orientation === "horizontal");
-    
-    // If no horizontal video, just return all vertical
-    if (horizontal.length === 0) {
-      return vertical;
-    }
-    
-    // If no vertical video, just return all horizontal
-    if (vertical.length === 0) {
-      return horizontal;
-    }
-    
-    const arranged: Video[] = [];
-    
-    // Top 4 videos
-    if (vertical.length >= 4) {
-      arranged.push(...vertical.slice(0, 4));
-    } else {
-      arranged.push(...vertical.slice(0, vertical.length));
-    }
-    
-    // Left vertical video
-    const leftIndex = Math.min(4, vertical.length);
-    if (leftIndex < vertical.length) {
-      arranged.push(vertical[leftIndex]);
-    }
-    
-    // Center horizontal video
-    arranged.push(horizontal[0]);
-    
-    // Right vertical video
-    const rightIndex = Math.min(5, vertical.length);
-    if (rightIndex < vertical.length) {
-      arranged.push(vertical[rightIndex]);
-    }
-    
-    // Bottom 4 videos
-    const bottomStartIndex = Math.min(6, vertical.length);
-    if (bottomStartIndex < vertical.length) {
-      arranged.push(...vertical.slice(bottomStartIndex, bottomStartIndex + 4));
-    }
-    
-    return arranged;
-  };
+  // Modal keyboard nav
+  const allModalVideos = selectedVideo
+    ? videos.filter((v) => !v.cinematic || selectedVideo.cinematic === v.cinematic)
+    : [];
 
-  const arrangedVideos = filter === "all" 
-    ? arrangeVideosWithCenterHorizontal(filteredVideos)
-    : filteredVideos;
+  const goNext = useCallback(() => {
+    if (!selectedVideo) return;
+    const pool = selectedVideo.cinematic ? cinematicVideos : filtered;
+    const idx = pool.findIndex((v) => v.id === selectedVideo.id);
+    setSelectedVideo(pool[(idx + 1) % pool.length]);
+  }, [selectedVideo, cinematicVideos, filtered]);
 
-  // Navigation functions for video modal
-  const getCurrentVideoIndex = () => {
-    if (!selectedVideo) return -1;
-    return filteredVideos.findIndex((v) => v.id === selectedVideo.id);
-  };
+  const goPrev = useCallback(() => {
+    if (!selectedVideo) return;
+    const pool = selectedVideo.cinematic ? cinematicVideos : filtered;
+    const idx = pool.findIndex((v) => v.id === selectedVideo.id);
+    setSelectedVideo(pool[(idx - 1 + pool.length) % pool.length]);
+  }, [selectedVideo, cinematicVideos, filtered]);
 
-  const goToNextVideo = () => {
-    const currentIndex = getCurrentVideoIndex();
-    if (currentIndex < filteredVideos.length - 1) {
-      setSelectedVideo(filteredVideos[currentIndex + 1]);
-    } else {
-      // Loop to first video
-      setSelectedVideo(filteredVideos[0]);
-    }
-  };
-
-  const goToPrevVideo = () => {
-    const currentIndex = getCurrentVideoIndex();
-    if (currentIndex > 0) {
-      setSelectedVideo(filteredVideos[currentIndex - 1]);
-    } else {
-      // Loop to last video
-      setSelectedVideo(filteredVideos[filteredVideos.length - 1]);
-    }
-  };
-
-  // Keyboard navigation & body scroll lock
   useEffect(() => {
     if (selectedVideo) {
-      // Lock scroll when modal is open
       document.body.style.overflow = "hidden";
-      document.body.style.paddingRight = "15px";
     } else {
-      // Unlock scroll when modal is closed
-      document.body.style.overflow = "unset";
-      document.body.style.paddingRight = "0px";
+      document.body.style.overflow = "";
     }
-
-    if (!selectedVideo) return;
-
-    const getCurrentIndex = () => {
-      return filteredVideos.findIndex((v) => v.id === selectedVideo.id);
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") goNext();
+      else if (e.key === "ArrowLeft") goPrev();
+      else if (e.key === "Escape") setSelectedVideo(null);
     };
-
-    const handleNext = () => {
-      const currentIndex = getCurrentIndex();
-      if (currentIndex < filteredVideos.length - 1) {
-        setSelectedVideo(filteredVideos[currentIndex + 1]);
-      } else {
-        setSelectedVideo(filteredVideos[0]);
-      }
-    };
-
-    const handlePrev = () => {
-      const currentIndex = getCurrentIndex();
-      if (currentIndex > 0) {
-        setSelectedVideo(filteredVideos[currentIndex - 1]);
-      } else {
-        setSelectedVideo(filteredVideos[filteredVideos.length - 1]);
-      }
-    };
-
-    const handleKeyPress = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight") {
-        handleNext();
-      } else if (e.key === "ArrowLeft") {
-        handlePrev();
-      } else if (e.key === "Escape") {
-        setSelectedVideo(null);
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyPress);
+    window.addEventListener("keydown", handler);
     return () => {
-      window.removeEventListener("keydown", handleKeyPress);
-      document.body.style.overflow = "unset";
-      document.body.style.paddingRight = "0px";
+      window.removeEventListener("keydown", handler);
+      document.body.style.overflow = "";
     };
-  }, [selectedVideo, filteredVideos]);
+  }, [selectedVideo, goNext, goPrev]);
+
+  const activeCinema = cinematicVideos[activeCinemaIndex] ?? null;
 
   return (
     <section
       id="videos"
-      className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 relative overflow-hidden"
-      style={{ 
-        background: "#0a0a0a",
-        marginTop: "-1px",
-      }}
+      className="relative overflow-hidden"
+      style={{ background: "#0a0a0a", marginTop: "-1px" }}
     >
-      {/* Background Video */}
-      <div className="absolute inset-0 z-0">
+      {/* ── BG video ── */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
         <video
-          ref={videoRef}
+          ref={bgVideoRef}
           autoPlay
           loop
           muted
           playsInline
-          className="w-full h-full object-cover opacity-50"
-          style={{ filter: "blur(2px)" }}
+          className="w-full h-full object-cover opacity-30"
+          style={{ filter: "blur(4px)" }}
         >
           <source src={normalizeMediaUrl(backgroundVideo)} type="video/mp4" />
         </video>
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a]/70 via-[#0a0a0a]/50 to-[#0a0a0a]/70" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a]/80 via-[#0a0a0a]/60 to-[#0a0a0a]/90" />
       </div>
 
-      {/* Smooth top fade from Hero section */}
-      <div 
-        className="absolute top-0 left-0 right-0 h-48 pointer-events-none z-10"
-        style={{
-          background: "linear-gradient(to bottom, #0a0a0a 0%, rgba(10, 10, 10, 0.7) 40%, rgba(10, 10, 10, 0.3) 70%, transparent 100%)",
-        }}
+      {/* Top fade */}
+      <div
+        className="absolute top-0 left-0 right-0 h-40 z-10 pointer-events-none"
+        style={{ background: "linear-gradient(to bottom, #0a0a0a 0%, transparent 100%)" }}
       />
-      {/* Smooth bottom fade to References section */}
-      <div 
-        className="absolute bottom-0 left-0 right-0 h-48 pointer-events-none z-10"
-        style={{
-          background: "linear-gradient(to top, #111111 0%, rgba(17, 17, 17, 0.7) 40%, rgba(17, 17, 17, 0.3) 70%, transparent 100%)",
-        }}
-      />
-      <div className="max-w-7xl mx-auto relative z-10">
-        <div className="text-center mb-8 sm:mb-12 md:mb-16">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-medium tracking-wider mb-3 sm:mb-4 text-white">
-            Videolar
-          </h2>
-          <p className="text-white/70 font-normal text-base sm:text-lg max-w-2xl mx-auto px-2">
-            Yatay ve dikey formatlarda ürettiğim video prodüksiyonlarım
-          </p>
-        </div>
 
-        {/* Filter Buttons */}
-        <div className="flex justify-center gap-2 sm:gap-4 mb-8 sm:mb-12 flex-wrap">
-          <button
-            onClick={() => setFilter("all")}
-            aria-pressed={filter === "all"}
-            className={`px-4 sm:px-6 py-2 text-sm sm:text-base font-normal tracking-wide transition-all duration-300 backdrop-blur-md rounded ${
-              filter === "all"
-                ? "border border-white/30 text-white bg-white/10 shadow-lg shadow-white/10"
-                : "border border-white/20 text-white/60 hover:text-white hover:border-white/30 hover:bg-white/5"
-            }`}
-          >
-            Tümü
-          </button>
-          <button
-            onClick={() => setFilter("horizontal")}
-            aria-pressed={filter === "horizontal"}
-            className={`px-4 sm:px-6 py-2 text-sm sm:text-base font-normal tracking-wide transition-all duration-300 backdrop-blur-md rounded ${
-              filter === "horizontal"
-                ? "border border-white/30 text-white bg-white/10 shadow-lg shadow-white/10"
-                : "border border-white/20 text-white/60 hover:text-white hover:border-white/30 hover:bg-white/5"
-            }`}
-          >
-            Yatay
-          </button>
-          <button
-            onClick={() => setFilter("vertical")}
-            aria-pressed={filter === "vertical"}
-            className={`px-4 sm:px-6 py-2 text-sm sm:text-base font-normal tracking-wide transition-all duration-300 backdrop-blur-md rounded ${
-              filter === "vertical"
-                ? "border border-white/30 text-white bg-white/10 shadow-lg shadow-white/10"
-                : "border border-white/20 text-white/60 hover:text-white hover:border-white/30 hover:bg-white/5"
-            }`}
-          >
-            Dikey
-          </button>
-        </div>
+      <div className="relative z-20">
 
-        {/* Video Grid */}
-        <div className="flex flex-col gap-3 sm:gap-6">
-          {/* Top Row - 4 Videos: 2 cols on mobile, 4 on desktop */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-            {arrangedVideos.slice(0, 4).map((video) => (
-              <VideoCard key={video.id} video={video} onSelect={setSelectedVideo} />
+        {/* ════════════════════════════════════
+            SİNEMATİK BÖLÜM
+        ════════════════════════════════════ */}
+        {cinematicVideos.length > 0 && (
+          <div className="px-4 sm:px-6 pt-16 sm:pt-24 pb-12 sm:pb-16 max-w-7xl mx-auto">
+            {/* Başlık */}
+            <div className="flex items-center gap-3 mb-8 sm:mb-10">
+              <div className="flex items-center gap-2">
+                <span className="w-1 h-8 bg-[#f89821] rounded-full" />
+                <h2 className="text-2xl sm:text-3xl font-medium tracking-wider text-white">
+                  Sinematik
+                </h2>
+              </div>
+              <div className="flex-1 h-px bg-white/10" />
+              <span className="text-white/30 text-xs tracking-widest uppercase">Film kalitesi</span>
+            </div>
+
+            {/* Büyük featured player */}
+            {activeCinema && (
+              <div className="relative rounded-2xl overflow-hidden bg-black shadow-2xl shadow-black/60 mb-4 group">
+                {/* Letterbox bars */}
+                <div className="absolute top-0 left-0 right-0 h-6 sm:h-10 bg-black z-10" />
+                <div className="absolute bottom-0 left-0 right-0 h-6 sm:h-10 bg-black z-10" />
+
+                {/* Thumbnail */}
+                <div className="relative aspect-video">
+                  {activeCinema.thumbnail && (
+                    <Image
+                      src={normalizeMediaUrl(activeCinema.thumbnail)}
+                      alt={activeCinema.title}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 80vw"
+                      priority
+                    />
+                  )}
+                  {/* Slight dark overlay */}
+                  <div className="absolute inset-0 bg-black/30" />
+
+                  {/* Film grain texture */}
+                  <div
+                    className="absolute inset-0 opacity-[0.04] pointer-events-none"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E")`,
+                      backgroundSize: "128px 128px",
+                    }}
+                  />
+
+                  {/* Info overlay — bottom */}
+                  <div className="absolute bottom-6 sm:bottom-12 left-6 sm:left-10 right-6 sm:right-10 z-20">
+                    {activeCinema.client && (
+                      <span className="inline-block text-xs tracking-[0.2em] uppercase text-[#f89821] mb-2 font-medium">
+                        {activeCinema.client}
+                      </span>
+                    )}
+                    <h3 className="text-xl sm:text-3xl md:text-4xl font-medium text-white leading-tight">
+                      {activeCinema.title}
+                    </h3>
+                    {activeCinema.description && (
+                      <p className="text-white/60 text-sm sm:text-base mt-1">{activeCinema.description}</p>
+                    )}
+                  </div>
+
+                  {/* Play button — center */}
+                  <button
+                    onClick={() => setSelectedVideo(activeCinema)}
+                    className="absolute inset-0 flex items-center justify-center z-20 group/play"
+                    aria-label="Videoyu oynat"
+                  >
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/15 backdrop-blur-md border border-white/30 flex items-center justify-center transition-all duration-300 group-hover/play:bg-white/25 group-hover/play:scale-110">
+                      <PlayIcon size={24} />
+                    </div>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Thumbnail strip */}
+            {cinematicVideos.length > 1 && (
+              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                {cinematicVideos.map((v, i) => (
+                  <CinematicCard
+                    key={v.id}
+                    video={v}
+                    isActive={i === activeCinemaIndex}
+                    onClick={() => setActiveCinemaIndex(i)}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ════════════════════════════════════
+            PORTFOLİO BÖLÜM
+        ════════════════════════════════════ */}
+        <div className="px-4 sm:px-6 pb-20 sm:pb-28 max-w-7xl mx-auto">
+          {/* Başlık */}
+          <div className="flex items-center gap-3 mb-8 sm:mb-10">
+            <div className="flex items-center gap-2">
+              <span className="w-1 h-8 bg-white/40 rounded-full" />
+              <h2 className="text-2xl sm:text-3xl font-medium tracking-wider text-white">
+                Çalışmalar
+              </h2>
+            </div>
+            <div className="flex-1 h-px bg-white/10" />
+            <span className="text-white/30 text-xs tracking-widest uppercase">
+              {filtered.length} video
+            </span>
+          </div>
+
+          {/* Kategori tabları */}
+          <div className="flex gap-2 overflow-x-auto pb-3 mb-8 sm:mb-10 scrollbar-hide">
+            {clients.map((c) => (
+              <button
+                key={c}
+                onClick={() => setActiveClient(c)}
+                className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-normal tracking-wide transition-all duration-200 focus:outline-none ${
+                  activeClient === c
+                    ? "bg-white text-black shadow-lg shadow-white/20"
+                    : "bg-white/8 text-white/60 border border-white/10 hover:bg-white/15 hover:text-white"
+                }`}
+              >
+                {c}
+              </button>
             ))}
           </div>
 
-          {/* Center Row - mobile: horizontal full-width top, then 2 verticals side-by-side */}
-          {arrangedVideos.length > 4 && (
-            <div className="grid grid-cols-2 md:grid-cols-12 gap-3 sm:gap-6 items-start">
-              {/* Left Vertical — order 2 on mobile, col 1-3 on desktop */}
-              {arrangedVideos[4] && (
-                <div className="col-span-1 md:col-span-3 order-2 md:order-1">
-                  <VideoCard video={arrangedVideos[4]} onSelect={setSelectedVideo} />
+          {/* Video grid */}
+          {filtered.length === 0 ? (
+            <p className="text-white/30 text-center py-16">Bu kategoride henüz video yok.</p>
+          ) : (
+            <div className="columns-2 sm:columns-3 lg:columns-4 gap-3 sm:gap-4 space-y-3 sm:space-y-4">
+              {filtered.map((video) => (
+                <div key={video.id} className="break-inside-avoid">
+                  <VideoCard video={video} onSelect={setSelectedVideo} />
                 </div>
-              )}
-
-              {/* Center Horizontal — full width on mobile (order 1), col 4-9 on desktop */}
-              {arrangedVideos[5] && (
-                <div className="col-span-2 md:col-span-6 order-1 md:order-2">
-                  <VideoCard video={arrangedVideos[5]} onSelect={setSelectedVideo} />
-                </div>
-              )}
-
-              {/* Right Vertical — order 3 on mobile, col 10-12 on desktop */}
-              {arrangedVideos[6] && (
-                <div className="col-span-1 md:col-span-3 order-3">
-                  <VideoCard video={arrangedVideos[6]} onSelect={setSelectedVideo} />
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Bottom Row - 4 Videos: 2 cols on mobile, 4 on desktop */}
-          {arrangedVideos.length > 6 && (
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-              {arrangedVideos.slice(7, 11).map((video) => (
-                <VideoCard key={video.id} video={video} onSelect={setSelectedVideo} />
               ))}
             </div>
           )}
         </div>
       </div>
 
-      {/* Video Modal */}
+      {/* Bottom fade */}
+      <div
+        className="absolute bottom-0 left-0 right-0 h-32 z-10 pointer-events-none"
+        style={{ background: "linear-gradient(to top, #111 0%, transparent 100%)" }}
+      />
+
+      {/* ════════════════════════════════════
+          VIDEO MODAL
+      ════════════════════════════════════ */}
       {selectedVideo && (
         <div
-          className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 md:p-6"
+          className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex items-center justify-center p-3 sm:p-6"
           onClick={() => setSelectedVideo(null)}
           onTouchStart={(e) => { touchStartXRef.current = e.touches[0].clientX; }}
           onTouchEnd={(e) => {
             const diff = touchStartXRef.current - e.changedTouches[0].clientX;
-            if (Math.abs(diff) > 50) { diff > 0 ? goToNextVideo() : goToPrevVideo(); }
+            if (Math.abs(diff) > 50) diff > 0 ? goNext() : goPrev();
           }}
         >
           <div
-            className={`relative bg-white/5 backdrop-blur-xl border border-white/20 rounded-lg sm:rounded-xl p-2 sm:p-4 shadow-2xl shadow-black/50 w-full ${
-              selectedVideo.orientation === "vertical"
-                ? "max-w-sm max-h-[95vh]"
-                : "max-w-6xl max-h-[95vh]"
+            className={`relative w-full ${
+              selectedVideo.orientation === "vertical" ? "max-w-sm" : "max-w-5xl"
             }`}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Left Arrow — desktop only */}
-            {filteredVideos.length > 1 && (
-              <button
-                onClick={(e) => { e.stopPropagation(); goToPrevVideo(); }}
-                className="hidden sm:flex absolute sm:left-0 sm:-translate-x-[120%] md:-translate-x-[150%] top-1/2 -translate-y-1/2 text-white hover:text-white/70 bg-white/10 backdrop-blur-md border border-white/20 rounded-full w-12 h-12 md:w-14 md:h-14 items-center justify-center hover:bg-white/20 z-50"
-                aria-label="Önceki video"
-              >
-                <svg className="w-6 h-6 md:w-7 md:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-            )}
-
-            {/* Right Arrow — desktop only */}
-            {filteredVideos.length > 1 && (
-              <button
-                onClick={(e) => { e.stopPropagation(); goToNextVideo(); }}
-                className="hidden sm:flex absolute sm:right-0 sm:translate-x-[120%] md:translate-x-[150%] top-1/2 -translate-y-1/2 text-white hover:text-white/70 bg-white/10 backdrop-blur-md border border-white/20 rounded-full w-12 h-12 md:w-14 md:h-14 items-center justify-center hover:bg-white/20 z-50"
-                aria-label="Sonraki video"
-              >
-                <svg className="w-6 h-6 md:w-7 md:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            )}
-
-            {/* Close button */}
+            {/* Close */}
             <button
               onClick={() => setSelectedVideo(null)}
-              className="absolute -top-10 sm:-top-12 right-0 text-white hover:text-white/70 bg-white/10 backdrop-blur-md border border-white/20 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center hover:bg-white/20 z-50 text-base sm:text-xl"
+              className="absolute -top-11 right-0 w-9 h-9 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-colors z-50"
+              aria-label="Kapat"
             >
-              ✕
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
             </button>
+
+            {/* Prev — desktop */}
+            <button
+              onClick={goPrev}
+              className="hidden sm:flex absolute left-0 -translate-x-[130%] top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 border border-white/20 items-center justify-center text-white hover:bg-white/20 transition-colors z-50"
+              aria-label="Önceki"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                <path d="M15 19l-7-7 7-7"/>
+              </svg>
+            </button>
+
+            {/* Next — desktop */}
+            <button
+              onClick={goNext}
+              className="hidden sm:flex absolute right-0 translate-x-[130%] top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 border border-white/20 items-center justify-center text-white hover:bg-white/20 transition-colors z-50"
+              aria-label="Sonraki"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                <path d="M9 5l7 7-7 7"/>
+              </svg>
+            </button>
+
+            {/* Title */}
+            <div className="mb-2 px-1">
+              {selectedVideo.client && (
+                <span className="text-xs text-[#f89821] tracking-widest uppercase">{selectedVideo.client}</span>
+              )}
+              <h3 className="text-white font-medium text-base sm:text-lg">{selectedVideo.title}</h3>
+            </div>
 
             {/* Video */}
             <video
               controls
               autoPlay
-              className="w-full h-auto rounded-lg max-h-[80vh] sm:max-h-[85vh] object-contain"
+              playsInline
+              className="w-full rounded-xl max-h-[80vh] object-contain bg-black"
               src={normalizeMediaUrl(selectedVideo.videoUrl)}
               key={selectedVideo.id}
             >
               Tarayıcınız video oynatmayı desteklemiyor.
             </video>
 
-            {/* Mobile nav — below video */}
-            {filteredVideos.length > 1 && (
-              <div className="flex sm:hidden gap-3 mt-3">
-                <button
-                  onClick={(e) => { e.stopPropagation(); goToPrevVideo(); }}
-                  className="flex-1 py-2.5 text-sm text-white/80 bg-white/8 border border-white/15 rounded-lg flex items-center justify-center gap-1.5"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                  Önceki
-                </button>
-                <span className="flex items-center text-xs text-white/30 px-1">
-                  {getCurrentVideoIndex() + 1}/{filteredVideos.length}
-                </span>
-                <button
-                  onClick={(e) => { e.stopPropagation(); goToNextVideo(); }}
-                  className="flex-1 py-2.5 text-sm text-white/80 bg-white/8 border border-white/15 rounded-lg flex items-center justify-center gap-1.5"
-                >
-                  Sonraki
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-              </div>
-            )}
-
-            {/* Swipe hint — mobile only, first time */}
-            <p className="sm:hidden text-center text-white/20 text-xs mt-2">
-              ← kaydırarak geçiş yapın →
-            </p>
+            {/* Mobile nav */}
+            <div className="flex sm:hidden gap-3 mt-3">
+              <button onClick={goPrev} className="flex-1 py-2.5 text-sm text-white/70 bg-white/8 border border-white/10 rounded-lg flex items-center justify-center gap-1.5">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M15 19l-7-7 7-7"/></svg>
+                Önceki
+              </button>
+              <button onClick={goNext} className="flex-1 py-2.5 text-sm text-white/70 bg-white/8 border border-white/10 rounded-lg flex items-center justify-center gap-1.5">
+                Sonraki
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M9 5l7 7-7 7"/></svg>
+              </button>
+            </div>
           </div>
         </div>
       )}
     </section>
   );
 }
-

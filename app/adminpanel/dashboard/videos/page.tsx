@@ -12,6 +12,8 @@ interface Video {
   videoUrl: string;
   orientation: "vertical" | "horizontal";
   description: string;
+  client: string;
+  cinematic: boolean;
 }
 
 const slugify = (value: string) =>
@@ -42,6 +44,8 @@ export default function VideosManager() {
     videoUrl: "",
     orientation: "vertical",
     description: "",
+    client: "",
+    cinematic: false,
   });
 
   useEffect(() => {
@@ -96,6 +100,8 @@ export default function VideosManager() {
       videoUrl: "",
       orientation: "vertical",
       description: "",
+      client: "",
+      cinematic: false,
     };
     setVideos([...videos, newVideo]);
     setEditingId(newId);
@@ -240,35 +246,57 @@ export default function VideosManager() {
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm text-white/70 mb-2">
-                          Başlık
-                        </label>
+                        <label className="block text-sm text-white/70 mb-2">Başlık</label>
                         <input
                           type="text"
                           value={formData.title}
-                          onChange={(e) =>
-                            setFormData({ ...formData, title: e.target.value })
-                          }
+                          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                           className="w-full px-4 py-2 bg-white/5 border border-white/20 text-white rounded-lg"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm text-white/70 mb-2">
-                          Yönlendirme
-                        </label>
+                        <label className="block text-sm text-white/70 mb-2">Müşteri / Kategori</label>
+                        <input
+                          type="text"
+                          value={formData.client}
+                          onChange={(e) => setFormData({ ...formData, client: e.target.value })}
+                          className="w-full px-4 py-2 bg-white/5 border border-white/20 text-white rounded-lg"
+                          placeholder="örn: Ede Oto, Yüksel Et..."
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm text-white/70 mb-2">Yönlendirme</label>
                         <select
                           value={formData.orientation}
                           onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              orientation: e.target.value as "vertical" | "horizontal",
-                            })
+                            setFormData({ ...formData, orientation: e.target.value as "vertical" | "horizontal" })
                           }
                           className="w-full px-4 py-2 bg-white/5 border border-white/20 text-white rounded-lg"
                         >
                           <option value="vertical">Dikey</option>
                           <option value="horizontal">Yatay</option>
                         </select>
+                      </div>
+                      <div className="flex items-end pb-1">
+                        <label className="flex items-center gap-3 cursor-pointer select-none">
+                          <div
+                            onClick={() => setFormData({ ...formData, cinematic: !formData.cinematic })}
+                            className={`relative w-12 h-6 rounded-full transition-colors duration-200 ${
+                              formData.cinematic ? "bg-[#f89821]" : "bg-white/20"
+                            }`}
+                          >
+                            <span
+                              className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform duration-200 ${
+                                formData.cinematic ? "translate-x-7" : "translate-x-1"
+                              }`}
+                            />
+                          </div>
+                          <span className="text-sm text-white/70">
+                            🎬 Sinematik (yatay filmler için)
+                          </span>
+                        </label>
                       </div>
                     </div>
                     <div>
@@ -389,10 +417,10 @@ export default function VideosManager() {
                       <p className="text-white/60 text-sm mb-2">
                         {video.description || "Açıklama yok"}
                       </p>
-                      <div className="flex gap-4 text-sm text-white/50">
-                        <span>Yön: {video.orientation === "vertical" ? "Dikey" : "Yatay"}</span>
-                        <span>Thumbnail: {video.thumbnail}</span>
-                        <span>Video: {video.videoUrl}</span>
+                      <div className="flex flex-wrap gap-3 text-sm text-white/50">
+                        {video.client && <span className="text-[#f89821]/80">📁 {video.client}</span>}
+                        {video.cinematic && <span className="text-purple-400/80">🎬 Sinematik</span>}
+                        <span>{video.orientation === "vertical" ? "Dikey" : "Yatay"}</span>
                       </div>
                     </div>
                     <div className="flex gap-2">
