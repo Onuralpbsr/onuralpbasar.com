@@ -161,7 +161,7 @@ export default function Hero({ backgroundVideo }: HeroProps) {
         <div className="px-4 sm:px-6 max-w-4xl mx-auto w-full">
           {/* Shimmer title — orange light sweeps through on loop */}
           <h1
-            className="text-5xl sm:text-6xl md:text-7xl lg:text-9xl mb-4 sm:mb-6 text-shimmer animate-fade-up delay-100"
+            className="text-5xl sm:text-6xl md:text-7xl lg:text-9xl mb-4 sm:mb-6 pt-4 pb-2 text-shimmer animate-fade-up delay-100"
             style={{ fontFamily: "var(--font-signature), cursive" }}
           >
             Onuralp Başar
