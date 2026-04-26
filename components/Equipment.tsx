@@ -41,10 +41,25 @@ export default function Equipment({ equipment, categories }: EquipmentProps) {
     };
   }, []);
 
-  const filteredEquipment =
-    selectedCategory === "Tümü"
-      ? equipment
-      : equipment.filter((item) => item.category === selectedCategory);
+  // "Tümü" görünümünde Adobe programlarını tek bir grup kartı olarak göster
+  const filteredEquipment = (() => {
+    if (selectedCategory !== "Tümü") {
+      return equipment.filter((item) => item.category === selectedCategory);
+    }
+    const nonAdobe = equipment.filter((item) => item.category !== "Adobe Programları");
+    const adobeItems = equipment.filter((item) => item.category === "Adobe Programları");
+    if (adobeItems.length === 0) return nonAdobe;
+    const programNames = adobeItems
+      .map((i) => i.name.replace(/^Adobe\s+/, ""))
+      .join(" · ");
+    const adobeGroup: EquipmentItem = {
+      id: "adobe-group",
+      name: "Adobe Creative Suite",
+      category: "Adobe Programları",
+      description: `${programNames} — Video kurgu, hareket grafikleri, fotoğraf düzenleme ve grafik tasarım süreçlerinin tamamı Adobe ekosistemi ile yürütülür.`,
+    };
+    return [...nonAdobe, adobeGroup];
+  })();
 
   const allCategories = ["Tümü", ...categories];
 
