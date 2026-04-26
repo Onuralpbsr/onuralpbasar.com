@@ -20,49 +20,10 @@ interface VideoGalleryProps {
   backgroundVideo: string;
 }
 
-// ─────────────────────────────────────────
-// Play icon
-// ─────────────────────────────────────────
 const PlayIcon = ({ size = 20 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 20 20" fill="currentColor">
     <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
   </svg>
-);
-
-// ─────────────────────────────────────────
-// Sinematik öne çıkan video kartı
-// ─────────────────────────────────────────
-const CinematicCard = ({
-  video,
-  isActive,
-  onClick,
-}: {
-  video: Video;
-  isActive: boolean;
-  onClick: () => void;
-}) => (
-  <button
-    onClick={onClick}
-    className={`relative flex-shrink-0 rounded overflow-hidden transition-all duration-300 focus:outline-none ${
-      isActive
-        ? "ring-2 ring-white/60 opacity-100"
-        : "opacity-50 hover:opacity-80"
-    }`}
-    style={{ width: 120, height: 68 }}
-  >
-    {video.thumbnail ? (
-      <Image
-        src={normalizeMediaUrl(video.thumbnail)}
-        alt={video.title}
-        fill
-        className="object-cover"
-        sizes="120px"
-      />
-    ) : (
-      <div className="w-full h-full bg-white/10" />
-    )}
-    <div className="absolute inset-0 bg-black/20" />
-  </button>
 );
 
 // ─────────────────────────────────────────
@@ -95,17 +56,12 @@ const VideoCard = ({
       ) : (
         <div className="w-full h-full bg-white/10" />
       )}
-      {/* Gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
-
-      {/* Play button */}
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:scale-110">
           <PlayIcon size={18} />
         </div>
       </div>
-
-      {/* Bottom info */}
       <div className="absolute bottom-0 left-0 right-0 p-3">
         <h3 className="text-white text-sm font-medium line-clamp-2 leading-snug">
           {video.title}
@@ -126,19 +82,19 @@ const VideoCard = ({
 export default function VideoGallery({ videos, backgroundVideo }: VideoGalleryProps) {
   const cinematicVideos = videos.filter((v) => v.cinematic);
   const portfolioVideos = videos.filter((v) => !v.cinematic);
-
-  // Unique clients
   const clients = ["Tümü", ...Array.from(new Set(portfolioVideos.map((v) => v.client).filter(Boolean) as string[]))];
 
   const [activeClient, setActiveClient] = useState("Tümü");
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
   const [activeCinemaIndex, setActiveCinemaIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
 
+  // Sinematik arka plan video ref
+  const cinemaVideoRef = useRef<HTMLVideoElement>(null);
   const bgVideoRef = useRef<HTMLVideoElement>(null);
   const touchStartXRef = useRef(0);
+  const cinemaTouchStartXRef = useRef(0);
 
-  // Background video play/pause via IntersectionObserver
+  // Arka plan videosu IntersectionObserver
   useEffect(() => {
     const el = bgVideoRef.current;
     if (!el) return;
@@ -153,17 +109,30 @@ export default function VideoGallery({ videos, backgroundVideo }: VideoGalleryPr
     return () => obs.disconnect();
   }, []);
 
-  // Filtered portfolio videos
+  // Aktif sinematik video değişince yeni videoyu oynat
+  useEffect(() => {
+    const el = cinemaVideoRef.current;
+    if (!el) return;
+    el.load();
+    el.play().catch(() => {});
+  }, [activeCinemaIndex]);
+
+  // Sinematik navigation
+  const cinemaPrev = useCallback(() => {
+    setActiveCinemaIndex((i) => (i - 1 + cinematicVideos.length) % cinematicVideos.length);
+  }, [cinematicVideos.length]);
+
+  const cinemaNext = useCallback(() => {
+    setActiveCinemaIndex((i) => (i + 1) % cinematicVideos.length);
+  }, [cinematicVideos.length]);
+
+  // Portfolio filtreleme
   const filtered =
     activeClient === "Tümü"
       ? portfolioVideos
       : portfolioVideos.filter((v) => v.client === activeClient);
 
-  // Modal keyboard nav
-  const allModalVideos = selectedVideo
-    ? videos.filter((v) => !v.cinematic || selectedVideo.cinematic === v.cinematic)
-    : [];
-
+  // Modal navigation
   const goNext = useCallback(() => {
     if (!selectedVideo) return;
     const pool = selectedVideo.cinematic ? cinematicVideos : filtered;
@@ -178,12 +147,10 @@ export default function VideoGallery({ videos, backgroundVideo }: VideoGalleryPr
     setSelectedVideo(pool[(idx - 1 + pool.length) % pool.length]);
   }, [selectedVideo, cinematicVideos, filtered]);
 
+  // Modal scroll lock + keyboard
   useEffect(() => {
-    if (selectedVideo) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    if (selectedVideo) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "";
     const handler = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight") goNext();
       else if (e.key === "ArrowLeft") goPrev();
@@ -204,15 +171,12 @@ export default function VideoGallery({ videos, backgroundVideo }: VideoGalleryPr
       className="relative overflow-hidden"
       style={{ background: "#0a0a0a", marginTop: "-1px" }}
     >
-      {/* ── BG video ── */}
+      {/* Section arka plan videosu */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <video
           ref={bgVideoRef}
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="w-full h-full object-cover opacity-30"
+          autoPlay loop muted playsInline
+          className="w-full h-full object-cover opacity-25"
           style={{ filter: "blur(4px)" }}
         >
           <source src={normalizeMediaUrl(backgroundVideo)} type="video/mp4" />
@@ -220,123 +184,197 @@ export default function VideoGallery({ videos, backgroundVideo }: VideoGalleryPr
         <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a]/80 via-[#0a0a0a]/60 to-[#0a0a0a]/90" />
       </div>
 
-      {/* Top fade */}
-      <div
-        className="absolute top-0 left-0 right-0 h-40 z-10 pointer-events-none"
-        style={{ background: "linear-gradient(to bottom, #0a0a0a 0%, transparent 100%)" }}
-      />
+      {/* Üst fade */}
+      <div className="absolute top-0 left-0 right-0 h-40 z-10 pointer-events-none"
+        style={{ background: "linear-gradient(to bottom, #0a0a0a 0%, transparent 100%)" }} />
 
       <div className="relative z-20">
 
-        {/* ════════════════════════════════════
+        {/* ══════════════════════════════════
             SİNEMATİK BÖLÜM
-        ════════════════════════════════════ */}
+        ══════════════════════════════════ */}
         {cinematicVideos.length > 0 && (
-          <div className="px-4 sm:px-6 pt-16 sm:pt-24 pb-12 sm:pb-16 max-w-7xl mx-auto">
+          <div className="pt-16 sm:pt-24 pb-12 sm:pb-16">
             {/* Başlık */}
-            <div className="flex items-center gap-3 mb-8 sm:mb-10">
-              <div className="flex items-center gap-2">
-                <span className="w-1 h-8 bg-[#f89821] rounded-full" />
-                <h2 className="text-2xl sm:text-3xl font-medium tracking-wider text-white">
-                  Sinematik
-                </h2>
-              </div>
+            <div className="px-4 sm:px-6 max-w-7xl mx-auto flex items-center gap-3 mb-8 sm:mb-10">
+              <span className="w-1 h-8 bg-[#f89821] rounded-full" />
+              <h2 className="text-2xl sm:text-3xl font-medium tracking-wider text-white">Sinematik</h2>
               <div className="flex-1 h-px bg-white/10" />
-              <span className="text-white/30 text-xs tracking-widest uppercase">Film kalitesi</span>
+              <span className="text-white/30 text-xs tracking-widest uppercase hidden sm:block">Film kalitesi</span>
             </div>
 
-            {/* Büyük featured player */}
+            {/* Sinematik featured player */}
             {activeCinema && (
-              <div className="relative rounded-2xl overflow-hidden bg-black shadow-2xl shadow-black/60 mb-4 group">
-                {/* Letterbox bars */}
-                <div className="absolute top-0 left-0 right-0 h-6 sm:h-10 bg-black z-10" />
-                <div className="absolute bottom-0 left-0 right-0 h-6 sm:h-10 bg-black z-10" />
+              <div
+                className="relative"
+                onTouchStart={(e) => { cinemaTouchStartXRef.current = e.touches[0].clientX; }}
+                onTouchEnd={(e) => {
+                  const diff = cinemaTouchStartXRef.current - e.changedTouches[0].clientX;
+                  if (Math.abs(diff) > 50) diff > 0 ? cinemaNext() : cinemaPrev();
+                }}
+              >
+                {/* Video container — full width, letterbox */}
+                <div className="relative w-full bg-black overflow-hidden" style={{ aspectRatio: "16/9", maxHeight: "80vh" }}>
+                  {/* Letterbox çubukları */}
+                  <div className="absolute top-0 left-0 right-0 z-10 pointer-events-none"
+                    style={{ height: "6%" , background: "#000" }} />
+                  <div className="absolute bottom-0 left-0 right-0 z-10 pointer-events-none"
+                    style={{ height: "6%", background: "#000" }} />
 
-                {/* Thumbnail */}
-                <div className="relative aspect-video">
-                  {activeCinema.thumbnail && (
+                  {/* Autoplay arka plan videosu (sessiz) */}
+                  {activeCinema.videoUrl ? (
+                    <video
+                      ref={cinemaVideoRef}
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      className="absolute inset-0 w-full h-full object-cover"
+                      key={activeCinema.id}
+                    >
+                      <source src={normalizeMediaUrl(activeCinema.videoUrl)} type="video/mp4" />
+                    </video>
+                  ) : activeCinema.thumbnail ? (
                     <Image
                       src={normalizeMediaUrl(activeCinema.thumbnail)}
                       alt={activeCinema.title}
                       fill
                       className="object-cover"
-                      sizes="(max-width: 768px) 100vw, 80vw"
+                      sizes="100vw"
                       priority
                     />
-                  )}
-                  {/* Slight dark overlay */}
-                  <div className="absolute inset-0 bg-black/30" />
+                  ) : null}
 
-                  {/* Film grain texture */}
-                  <div
-                    className="absolute inset-0 opacity-[0.04] pointer-events-none"
+                  {/* Film grain */}
+                  <div className="absolute inset-0 opacity-[0.035] pointer-events-none z-[5]"
                     style={{
-                      backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E")`,
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
                       backgroundSize: "128px 128px",
                     }}
                   />
 
-                  {/* Info overlay — bottom */}
-                  <div className="absolute bottom-6 sm:bottom-12 left-6 sm:left-10 right-6 sm:right-10 z-20">
-                    {activeCinema.client && (
-                      <span className="inline-block text-xs tracking-[0.2em] uppercase text-[#f89821] mb-2 font-medium">
-                        {activeCinema.client}
-                      </span>
-                    )}
-                    <h3 className="text-xl sm:text-3xl md:text-4xl font-medium text-white leading-tight">
-                      {activeCinema.title}
-                    </h3>
-                    {activeCinema.description && (
-                      <p className="text-white/60 text-sm sm:text-base mt-1">{activeCinema.description}</p>
-                    )}
-                  </div>
+                  {/* Gradient overlay — alt bilgi için */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent z-[6]" />
 
-                  {/* Play button — center */}
+                  {/* Sol ok */}
+                  {cinematicVideos.length > 1 && (
+                    <button
+                      onClick={cinemaPrev}
+                      className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/40 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-black/60 transition-all"
+                      aria-label="Önceki sinematik video"
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                        <path d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                  )}
+
+                  {/* Sağ ok */}
+                  {cinematicVideos.length > 1 && (
+                    <button
+                      onClick={cinemaNext}
+                      className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/40 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-black/60 transition-all"
+                      aria-label="Sonraki sinematik video"
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                        <path d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  )}
+
+                  {/* Tam ekran / sesli oynat butonu — ortada */}
                   <button
                     onClick={() => setSelectedVideo(activeCinema)}
                     className="absolute inset-0 flex items-center justify-center z-20 group/play"
-                    aria-label="Videoyu oynat"
+                    aria-label="Sesi açık tam ekran oynat"
                   >
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/15 backdrop-blur-md border border-white/30 flex items-center justify-center transition-all duration-300 group-hover/play:bg-white/25 group-hover/play:scale-110">
-                      <PlayIcon size={24} />
+                    <div className="flex flex-col items-center gap-2 opacity-0 group-hover/play:opacity-100 transition-opacity duration-300">
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center hover:bg-white/35 transition-all hover:scale-110">
+                        <PlayIcon size={26} />
+                      </div>
+                      <span className="text-white/80 text-xs tracking-widest uppercase">Sesi Aç</span>
                     </div>
                   </button>
-                </div>
-              </div>
-            )}
 
-            {/* Thumbnail strip */}
-            {cinematicVideos.length > 1 && (
-              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-                {cinematicVideos.map((v, i) => (
-                  <CinematicCard
-                    key={v.id}
-                    video={v}
-                    isActive={i === activeCinemaIndex}
-                    onClick={() => setActiveCinemaIndex(i)}
-                  />
-                ))}
+                  {/* Alt bilgi */}
+                  <div className="absolute bottom-[8%] left-6 sm:left-10 right-16 sm:right-20 z-20">
+                    {activeCinema.client && (
+                      <span className="inline-block text-xs tracking-[0.2em] uppercase text-[#f89821] mb-1 font-medium">
+                        {activeCinema.client}
+                      </span>
+                    )}
+                    <h3 className="text-lg sm:text-2xl md:text-3xl font-medium text-white leading-tight">
+                      {activeCinema.title}
+                    </h3>
+                    {activeCinema.description && (
+                      <p className="text-white/60 text-sm mt-0.5 hidden sm:block">{activeCinema.description}</p>
+                    )}
+                  </div>
+
+                  {/* Sayfa göstergesi */}
+                  {cinematicVideos.length > 1 && (
+                    <div className="absolute bottom-[8%] right-6 sm:right-10 z-20 flex gap-1.5">
+                      {cinematicVideos.map((_, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setActiveCinemaIndex(i)}
+                          className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+                            i === activeCinemaIndex ? "bg-white w-4" : "bg-white/40"
+                          }`}
+                          aria-label={`${i + 1}. video`}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Thumbnail strip */}
+                {cinematicVideos.length > 1 && (
+                  <div className="px-4 sm:px-6 max-w-7xl mx-auto mt-3 flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                    {cinematicVideos.map((v, i) => (
+                      <button
+                        key={v.id}
+                        onClick={() => setActiveCinemaIndex(i)}
+                        className={`relative flex-shrink-0 rounded-lg overflow-hidden transition-all duration-300 focus:outline-none ${
+                          i === activeCinemaIndex
+                            ? "ring-2 ring-[#f89821] opacity-100 scale-105"
+                            : "opacity-50 hover:opacity-80"
+                        }`}
+                        style={{ width: 140, height: 79 }}
+                      >
+                        {v.thumbnail ? (
+                          <Image
+                            src={normalizeMediaUrl(v.thumbnail)}
+                            alt={v.title}
+                            fill
+                            className="object-cover"
+                            sizes="140px"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-white/10" />
+                        )}
+                        <div className="absolute inset-0 bg-black/20" />
+                        <div className="absolute bottom-1 left-2 right-2">
+                          <p className="text-white text-[10px] line-clamp-1 font-medium">{v.title}</p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>
         )}
 
-        {/* ════════════════════════════════════
+        {/* ══════════════════════════════════
             PORTFOLİO BÖLÜM
-        ════════════════════════════════════ */}
+        ══════════════════════════════════ */}
         <div className="px-4 sm:px-6 pb-20 sm:pb-28 max-w-7xl mx-auto">
-          {/* Başlık */}
           <div className="flex items-center gap-3 mb-8 sm:mb-10">
-            <div className="flex items-center gap-2">
-              <span className="w-1 h-8 bg-white/40 rounded-full" />
-              <h2 className="text-2xl sm:text-3xl font-medium tracking-wider text-white">
-                Çalışmalar
-              </h2>
-            </div>
+            <span className="w-1 h-8 bg-white/40 rounded-full" />
+            <h2 className="text-2xl sm:text-3xl font-medium tracking-wider text-white">Çalışmalar</h2>
             <div className="flex-1 h-px bg-white/10" />
-            <span className="text-white/30 text-xs tracking-widest uppercase">
-              {filtered.length} video
-            </span>
+            <span className="text-white/30 text-xs tracking-widest uppercase">{filtered.length} video</span>
           </div>
 
           {/* Kategori tabları */}
@@ -371,15 +409,13 @@ export default function VideoGallery({ videos, backgroundVideo }: VideoGalleryPr
         </div>
       </div>
 
-      {/* Bottom fade */}
-      <div
-        className="absolute bottom-0 left-0 right-0 h-32 z-10 pointer-events-none"
-        style={{ background: "linear-gradient(to top, #111 0%, transparent 100%)" }}
-      />
+      {/* Alt fade */}
+      <div className="absolute bottom-0 left-0 right-0 h-32 z-10 pointer-events-none"
+        style={{ background: "linear-gradient(to top, #111 0%, transparent 100%)" }} />
 
-      {/* ════════════════════════════════════
-          VIDEO MODAL
-      ════════════════════════════════════ */}
+      {/* ══════════════════════════════════
+          VIDEO MODAL (ses açık, tam ekran)
+      ══════════════════════════════════ */}
       {selectedVideo && (
         <div
           className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex items-center justify-center p-3 sm:p-6"
@@ -396,40 +432,27 @@ export default function VideoGallery({ videos, backgroundVideo }: VideoGalleryPr
             }`}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Close */}
+            {/* Kapat */}
             <button
               onClick={() => setSelectedVideo(null)}
               className="absolute -top-11 right-0 w-9 h-9 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-colors z-50"
-              aria-label="Kapat"
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                 <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
               </svg>
             </button>
 
-            {/* Prev — desktop */}
-            <button
-              onClick={goPrev}
-              className="hidden sm:flex absolute left-0 -translate-x-[130%] top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 border border-white/20 items-center justify-center text-white hover:bg-white/20 transition-colors z-50"
-              aria-label="Önceki"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                <path d="M15 19l-7-7 7-7"/>
-              </svg>
+            {/* Sol ok — desktop */}
+            <button onClick={goPrev} className="hidden sm:flex absolute left-0 -translate-x-[130%] top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 border border-white/20 items-center justify-center text-white hover:bg-white/20 transition-colors z-50">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M15 19l-7-7 7-7"/></svg>
             </button>
 
-            {/* Next — desktop */}
-            <button
-              onClick={goNext}
-              className="hidden sm:flex absolute right-0 translate-x-[130%] top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 border border-white/20 items-center justify-center text-white hover:bg-white/20 transition-colors z-50"
-              aria-label="Sonraki"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                <path d="M9 5l7 7-7 7"/>
-              </svg>
+            {/* Sağ ok — desktop */}
+            <button onClick={goNext} className="hidden sm:flex absolute right-0 translate-x-[130%] top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 border border-white/20 items-center justify-center text-white hover:bg-white/20 transition-colors z-50">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M9 5l7 7-7 7"/></svg>
             </button>
 
-            {/* Title */}
+            {/* Başlık */}
             <div className="mb-2 px-1">
               {selectedVideo.client && (
                 <span className="text-xs text-[#f89821] tracking-widest uppercase">{selectedVideo.client}</span>
@@ -437,7 +460,7 @@ export default function VideoGallery({ videos, backgroundVideo }: VideoGalleryPr
               <h3 className="text-white font-medium text-base sm:text-lg">{selectedVideo.title}</h3>
             </div>
 
-            {/* Video */}
+            {/* Video — ses AÇIK */}
             <video
               controls
               autoPlay
@@ -449,7 +472,7 @@ export default function VideoGallery({ videos, backgroundVideo }: VideoGalleryPr
               Tarayıcınız video oynatmayı desteklemiyor.
             </video>
 
-            {/* Mobile nav */}
+            {/* Mobil nav */}
             <div className="flex sm:hidden gap-3 mt-3">
               <button onClick={goPrev} className="flex-1 py-2.5 text-sm text-white/70 bg-white/8 border border-white/10 rounded-lg flex items-center justify-center gap-1.5">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M15 19l-7-7 7-7"/></svg>
