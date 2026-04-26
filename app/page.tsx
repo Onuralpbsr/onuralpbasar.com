@@ -4,6 +4,7 @@ import References from "@/components/References";
 import Services from "@/components/Services";
 import Packages from "@/components/Packages";
 import Equipment from "@/components/Equipment";
+import TechBrands from "@/components/TechBrands";
 import Contact from "@/components/Contact";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
@@ -76,6 +77,7 @@ export default async function Home() {
         equipment={equipment.items}
         categories={equipment.categories}
       />
+      <TechBrands />
       <Contact
         contactData={contact}
         backgroundVideo={backgrounds.contact}
