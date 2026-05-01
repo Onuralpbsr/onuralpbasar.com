@@ -49,7 +49,7 @@ export default function TechBrands() {
         {/* Other brands — mobilde 3 sütunlu grid, masaüstünde flex */}
         <div className="grid grid-cols-3 sm:flex sm:flex-wrap justify-center items-center gap-8 sm:gap-14">
           {others.map((brand) => (
-            <div key={brand.name} className="group flex flex-col items-center gap-2.5">
+            <div key={brand.name} className="group flex items-center justify-center">
               <img
                 src={brand.src}
                 alt={brand.name}
@@ -62,9 +62,6 @@ export default function TechBrands() {
                 ].join(" ")}
                 draggable={false}
               />
-              <span className="text-[9px] uppercase tracking-[0.22em] text-white/18 group-hover:text-white/40 transition-colors duration-300">
-                {brand.name}
-              </span>
             </div>
           ))}
         </div>
