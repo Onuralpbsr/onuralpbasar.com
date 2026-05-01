@@ -86,9 +86,9 @@ export default function Equipment({ equipment, categories }: EquipmentProps) {
           </p>
         </div>
 
-        {/* Category Filter */}
+        {/* Category Filter — mobilde yatay kaydırmalı */}
         <div
-          className={`flex flex-wrap justify-center gap-2 sm:gap-4 mb-8 sm:mb-12 transition-all duration-1000 delay-200 ${
+          className={`flex gap-2 sm:gap-3 overflow-x-auto pb-2 mb-8 sm:mb-12 scrollbar-hide transition-all duration-1000 delay-200 sm:flex-wrap sm:justify-center sm:overflow-visible sm:pb-0 ${
             isVisible
               ? "opacity-100 translate-y-0"
               : "opacity-0 translate-y-10"
@@ -99,7 +99,7 @@ export default function Equipment({ equipment, categories }: EquipmentProps) {
               key={category}
               onClick={() => setSelectedCategory(category)}
               aria-pressed={selectedCategory === category}
-              className={`px-4 sm:px-6 py-2 text-sm sm:text-base font-normal tracking-wide transition-all duration-300 rounded ${
+              className={`flex-shrink-0 px-4 sm:px-6 py-2 text-sm sm:text-base font-normal tracking-wide transition-all duration-300 rounded whitespace-nowrap ${
                 selectedCategory === category
                   ? "border border-white/50 text-white bg-white/10"
                   : "border border-white/20 text-white/60 hover:text-white hover:border-white/40"

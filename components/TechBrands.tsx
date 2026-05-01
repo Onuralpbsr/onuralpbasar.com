@@ -46,8 +46,8 @@ export default function TechBrands() {
           <div className="flex-1 h-px bg-gradient-to-l from-transparent to-white/10" />
         </div>
 
-        {/* Other brands */}
-        <div className="flex flex-wrap justify-center items-center gap-10 sm:gap-14">
+        {/* Other brands — mobilde 3 sütunlu grid, masaüstünde flex */}
+        <div className="grid grid-cols-3 sm:flex sm:flex-wrap justify-center items-center gap-8 sm:gap-14">
           {others.map((brand) => (
             <div key={brand.name} className="group flex flex-col items-center gap-2.5">
               <img
