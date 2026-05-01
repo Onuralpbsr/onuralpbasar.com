@@ -14,6 +14,7 @@ interface Video {
   description: string;
   client: string;
   cinematic: boolean;
+  pinned: number; // 0 = sabitlenmemiş, 1-4 = pin sırası
 }
 
 const slugify = (value: string) =>
@@ -46,6 +47,7 @@ export default function VideosManager() {
     description: "",
     client: "",
     cinematic: false,
+    pinned: 0,
   });
 
   useEffect(() => {
@@ -102,10 +104,38 @@ export default function VideosManager() {
       description: "",
       client: "",
       cinematic: false,
+      pinned: 0,
     };
     setVideos([...videos, newVideo]);
     setEditingId(newId);
     setFormData(newVideo);
+  };
+
+  const handleTogglePin = (id: string) => {
+    const video = videos.find((v) => v.id === id);
+    if (!video) return;
+
+    if (video.pinned && video.pinned > 0) {
+      // Sabitlenmiş → sabitlemeyi kaldır, diğerlerinin sıralarını düzelt
+      const removedSlot = video.pinned;
+      const updated = videos.map((v) => {
+        if (v.id === id) return { ...v, pinned: 0 };
+        if ((v.pinned || 0) > removedSlot) return { ...v, pinned: (v.pinned || 0) - 1 };
+        return v;
+      });
+      setVideos(updated);
+    } else {
+      // Sabitlenmemiş → en büyük mevcut slot + 1 ata (max 4)
+      const usedSlots = videos
+        .filter((v) => v.id !== id && (v.pinned || 0) > 0)
+        .map((v) => v.pinned || 0);
+      if (usedSlots.length >= 4) {
+        alert("En fazla 4 video sabitleyebilirsiniz. Önce bir sabitlemeyi kaldırın.");
+        return;
+      }
+      const nextSlot = usedSlots.length === 0 ? 1 : Math.max(...usedSlots) + 1;
+      setVideos(videos.map((v) => (v.id === id ? { ...v, pinned: nextSlot } : v)));
+    }
   };
 
   const handleEdit = (video: Video) => {
@@ -411,9 +441,16 @@ export default function VideosManager() {
                 ) : (
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
-                      <h3 className="text-lg font-medium text-white mb-2">
-                        {video.title || "Başlıksız"}
-                      </h3>
+                      <div className="flex items-center gap-2 mb-2">
+                        <h3 className="text-lg font-medium text-white">
+                          {video.title || "Başlıksız"}
+                        </h3>
+                        {video.pinned > 0 && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#f89821]/20 border border-[#f89821]/40 rounded-full text-xs text-[#f89821] font-medium">
+                            📌 #{video.pinned}
+                          </span>
+                        )}
+                      </div>
                       <p className="text-white/60 text-sm mb-2">
                         {video.description || "Açıklama yok"}
                       </p>
@@ -423,7 +460,18 @@ export default function VideosManager() {
                         <span>{video.orientation === "vertical" ? "Dikey" : "Yatay"}</span>
                       </div>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-wrap justify-end">
+                      <button
+                        onClick={() => handleTogglePin(video.id)}
+                        title={video.pinned > 0 ? "Sabitlemeyi kaldır" : "Başa sabitle"}
+                        className={`px-4 py-2 rounded-lg text-sm transition-all ${
+                          video.pinned > 0
+                            ? "bg-[#f89821] hover:bg-[#e08010] text-black font-medium"
+                            : "bg-white/10 hover:bg-white/20 text-white/70 hover:text-white border border-white/20"
+                        }`}
+                      >
+                        {video.pinned > 0 ? `📌 #${video.pinned} Kaldır` : "📌 Sabitle"}
+                      </button>
                       <button
                         onClick={() => handleEdit(video)}
                         className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm"

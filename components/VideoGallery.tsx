@@ -13,6 +13,7 @@ interface Video {
   description?: string;
   client?: string;
   cinematic?: boolean;
+  pinned?: number; // 0 = sabitlenmemiş, 1-4 = pin sırası
 }
 
 interface VideoGalleryProps {
@@ -57,6 +58,15 @@ const VideoCard = ({
         <div className="w-full h-full bg-white/10" />
       )}
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+      {/* Pin rozeti */}
+      {video.pinned && video.pinned > 0 && (
+        <div className="absolute top-2 left-2 z-10 flex items-center gap-1 bg-[#f89821]/90 backdrop-blur-sm rounded-full px-2 py-0.5 shadow-lg">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" className="text-black/80">
+            <path d="M16 1H8C6.9 1 6 1.9 6 3v14l6 3 6-3V3c0-1.1-.9-2-2-2z"/>
+          </svg>
+          <span className="text-[10px] font-bold text-black/80 leading-none">{video.pinned}</span>
+        </div>
+      )}
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:scale-110">
           <PlayIcon size={18} />
@@ -126,11 +136,27 @@ export default function VideoGallery({ videos, backgroundVideo }: VideoGalleryPr
     setActiveCinemaIndex((i) => (i + 1) % cinematicVideos.length);
   }, [cinematicVideos.length]);
 
-  // Portfolio filtreleme
-  const filtered =
-    activeClient === "Tümü"
-      ? portfolioVideos
-      : portfolioVideos.filter((v) => v.client === activeClient);
+  // Portfolio filtreleme + sıralama
+  // "Tümü" sekmesinde: sabitlenmiş (pin sırasına göre) önce, ardından en yeni en başta
+  const filtered = (() => {
+    const pool =
+      activeClient === "Tümü"
+        ? portfolioVideos
+        : portfolioVideos.filter((v) => v.client === activeClient);
+
+    return [...pool].sort((a, b) => {
+      const aPinned = a.pinned || 0;
+      const bPinned = b.pinned || 0;
+      // Her iki video da sabitlenmişse pin sırasına göre
+      if (aPinned > 0 && bPinned > 0) return aPinned - bPinned;
+      // Sadece a sabitlenmişse a önce
+      if (aPinned > 0) return -1;
+      // Sadece b sabitlenmişse b önce
+      if (bPinned > 0) return 1;
+      // İkisi de sabitlenmemişse en yeni en başta (id = Date.now())
+      return parseInt(b.id) - parseInt(a.id);
+    });
+  })();
 
   // Modal navigation
   const goNext = useCallback(() => {
