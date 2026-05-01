@@ -97,6 +97,7 @@ export default function VideoGallery({ videos, backgroundVideo }: VideoGalleryPr
   const [activeClient, setActiveClient] = useState("Tümü");
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
   const [activeCinemaIndex, setActiveCinemaIndex] = useState(0);
+  const [visibleCount, setVisibleCount] = useState(12);
 
   // Sinematik arka plan video ref
   const cinemaVideoRef = useRef<HTMLVideoElement>(null);
@@ -408,7 +409,7 @@ export default function VideoGallery({ videos, backgroundVideo }: VideoGalleryPr
             {clients.map((c) => (
               <button
                 key={c}
-                onClick={() => setActiveClient(c)}
+                onClick={() => { setActiveClient(c); setVisibleCount(12); }}
                 className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-normal tracking-wide transition-all duration-200 focus:outline-none ${
                   activeClient === c
                     ? "bg-white text-black shadow-lg shadow-white/20"
@@ -420,17 +421,39 @@ export default function VideoGallery({ videos, backgroundVideo }: VideoGalleryPr
             ))}
           </div>
 
-          {/* Video grid */}
+          {/* Video grid — 4 sütun, düzenli */}
           {filtered.length === 0 ? (
             <p className="text-white/30 text-center py-16">Bu kategoride henüz video yok.</p>
           ) : (
-            <div className="columns-2 sm:columns-3 lg:columns-4 gap-3 sm:gap-4 space-y-3 sm:space-y-4">
-              {filtered.map((video) => (
-                <div key={video.id} className="break-inside-avoid">
-                  <VideoCard video={video} onSelect={setSelectedVideo} />
+            <>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                {filtered.slice(0, visibleCount).map((video) => (
+                  <VideoCard key={video.id} video={video} onSelect={setSelectedVideo} />
+                ))}
+              </div>
+
+              {/* Daha Fazla butonu */}
+              {visibleCount < filtered.length && (
+                <div className="flex justify-center mt-10 sm:mt-14">
+                  <button
+                    onClick={() => setVisibleCount((n) => n + 12)}
+                    className="group flex items-center gap-3 px-8 py-3 bg-white/8 border border-white/20 text-white/70 hover:text-white hover:bg-white/15 hover:border-white/40 rounded-full text-sm tracking-widest uppercase transition-all duration-300"
+                  >
+                    <span>Daha Fazla</span>
+                    <svg
+                      width="16" height="16" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+                      className="group-hover:translate-y-0.5 transition-transform duration-200"
+                    >
+                      <path d="M12 5v14M5 12l7 7 7-7" />
+                    </svg>
+                    <span className="text-white/30 text-xs normal-case tracking-normal">
+                      ({filtered.length - visibleCount} video daha)
+                    </span>
+                  </button>
                 </div>
-              ))}
-            </div>
+              )}
+            </>
           )}
         </div>
       </div>
