@@ -64,6 +64,7 @@ const extras = [
   { name: "Ek post tasarımı (Adet)", price: "1.000" },
   { name: "Logo & kurumsal kimlik", price: "8.000" },
   { name: "Video Düzenleme (Reels)", price: "1.000" },
+  { name: "Web Sitesi İnşası", price: "10.000 – 20.000" },
 ];
 
 export default function Packages() {
